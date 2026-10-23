@@ -377,11 +377,23 @@ class _TrustBadgeRow extends StatelessWidget {
   }
 }
 
-class _QuickActions extends StatelessWidget {
+class _QuickActions extends ConsumerWidget {
   const _QuickActions();
 
+  /// Track / History open the orders list on the Active / Completed filter
+  /// — same guest gate as the bottom nav: a guest logs in first.
+  Future<void> _openOrders(BuildContext context, WidgetRef ref, String filter) async {
+    final token = await ref.read(secureStorageProvider).readToken();
+    if (!context.mounted) return;
+    if (token == null || token.isEmpty) {
+      context.push('/login');
+      return;
+    }
+    context.push('/orders', extra: {'filter': filter});
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         Expanded(
@@ -402,6 +414,7 @@ class _QuickActions extends StatelessWidget {
             background: AppColors.successBackground,
             title: 'home.quick_action_track_title'.tr(),
             subtitle: 'home.quick_action_track_subtitle'.tr(),
+            onTap: () => _openOrders(context, ref, 'active'),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
@@ -412,6 +425,7 @@ class _QuickActions extends StatelessWidget {
             background: AppColors.infoBackground,
             title: 'home.quick_action_history_title'.tr(),
             subtitle: 'home.quick_action_history_subtitle'.tr(),
+            onTap: () => _openOrders(context, ref, 'completed'),
           ),
         ),
       ],
@@ -435,9 +449,6 @@ class _QuickActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  /// Null for "Track Order"/"Order History" — those screens (Modules 10/11)
-  /// don't have a standalone entry point yet, so those cards stay static
-  /// rather than linking somewhere half-built.
   final VoidCallback? onTap;
 
   @override
