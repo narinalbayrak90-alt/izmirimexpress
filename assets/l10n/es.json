@@ -387,7 +387,8 @@
     "account_row": "Instalar app",
     "ios_title": "Añadir a pantalla de inicio",
     "ios_step_share": "Toca el icono Compartir del navegador.",
-    "ios_step_add": "Elige \"Añadir a pantalla de inicio\".",
+    "ios_step_more": "Toca \"Ver más\" (la flecha hacia abajo).",
+    "ios_step_add": "Elige \"Añadir a pantalla de inicio\" (el icono +).",
     "ios_step_confirm": "Toca \"Añadir\" arriba a la derecha.",
     "ios_note": "İzmirim Express se abrirá desde tu pantalla de inicio como una app."
   }

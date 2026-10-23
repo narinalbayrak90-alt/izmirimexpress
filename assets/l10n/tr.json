@@ -387,7 +387,8 @@
     "account_row": "Uygulamayı Yükle",
     "ios_title": "Ana ekrana ekleyin",
     "ios_step_share": "Tarayıcıdaki Paylaş simgesine dokunun.",
-    "ios_step_add": "\"Ana Ekrana Ekle\"yi seçin.",
+    "ios_step_more": "\"Daha Fazla\"yı seçin (aşağı bakan ok).",
+    "ios_step_add": "\"Ana Ekrana Ekle\"yi seçin (+ simgesi).",
     "ios_step_confirm": "Sağ üstteki \"Ekle\"ye dokunun.",
     "ios_note": "İzmirim Express artık ana ekranınızda, uygulama gibi açılır."
   }

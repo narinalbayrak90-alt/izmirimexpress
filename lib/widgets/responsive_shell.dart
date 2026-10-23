@@ -315,7 +315,7 @@ class _LogoIcon extends StatelessWidget {
   const _LogoIcon();
 
   @override
-  Widget build(BuildContext context) => const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 22);
+  Widget build(BuildContext context) => Image.asset('assets/logo.png', fit: BoxFit.cover);
 }
 
 class _HeaderLink extends StatelessWidget {

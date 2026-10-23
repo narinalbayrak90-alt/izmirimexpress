@@ -154,11 +154,8 @@ class _PlaceholderIllustration extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.local_shipping_rounded,
-              color: Colors.white,
-              size: 64,
-            ),
+            clipBehavior: Clip.antiAlias,
+            child: Image.asset('assets/logo.png', fit: BoxFit.cover),
           ),
         ],
       ),

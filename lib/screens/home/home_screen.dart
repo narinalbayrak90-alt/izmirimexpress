@@ -114,10 +114,9 @@ class _HomeHeader extends ConsumerWidget {
               ? Image.network(
                   logoUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 22),
+                  errorBuilder: (context, error, stackTrace) => Image.asset('assets/logo.png', fit: BoxFit.cover),
                 )
-              : const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 22),
+              : Image.asset('assets/logo.png', fit: BoxFit.cover),
         ),
         const SizedBox(width: AppSpacing.sm),
         Text(

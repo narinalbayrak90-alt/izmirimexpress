@@ -31,8 +31,11 @@
   <script src="/admin/api/maps/js"></script>
 
   <style>
-    html, body { margin: 0; height: 100%; background: #FCBB07; }
-    #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+    /* White page behind the app: on Android Chrome the page shows through
+       under the app's bottom bar (gesture area), and yellow there read as a
+       stray stripe. Only the loading screen is yellow. */
+    html, body { margin: 0; height: 100%; background: #FFFFFF; }
+    #loading { position: fixed; inset: 0; background: #FFD21B; display: flex; align-items: center; justify-content: center; }
     #loading img { width: 120px; height: 120px; border-radius: 24px; animation: pulse 1.4s ease-in-out infinite; }
     @keyframes pulse { 50% { transform: scale(0.92); opacity: 0.8; } }
   </style>
