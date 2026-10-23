@@ -42,6 +42,10 @@ class PickupDropApp extends ConsumerWidget {
 
     return MaterialApp.router(
       title: 'app_name'.tr(),
+      // On the web this becomes the page's theme-color (browser and
+      // installed-app status/navigation bars); the default, the yellow
+      // primary color, showed as stripes above and below the app.
+      color: Colors.white,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       routerConfig: router,

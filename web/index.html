@@ -8,7 +8,7 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="İzmirim Express ile kurye çağırın, gönderinizi canlı takip edin.">
-  <meta name="theme-color" content="#FCBB07">
+  <meta name="theme-color" content="#FFFFFF">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
@@ -31,11 +31,11 @@
   <script src="/admin/api/maps/js"></script>
 
   <style>
-    /* White page behind the app: on Android Chrome the page shows through
-       under the app's bottom bar (gesture area), and yellow there read as a
-       stray stripe. Only the loading screen is yellow. */
+    /* Everything around the app is white — page, loading screen and the
+       browser / installed-app bars (theme-color) — so no yellow stripes
+       show above the app or under its bottom bar on Android. */
     html, body { margin: 0; height: 100%; background: #FFFFFF; }
-    #loading { position: fixed; inset: 0; background: #FFD21B; display: flex; align-items: center; justify-content: center; }
+    #loading { position: fixed; inset: 0; background: #FFFFFF; display: flex; align-items: center; justify-content: center; }
     #loading img { width: 120px; height: 120px; border-radius: 24px; animation: pulse 1.4s ease-in-out infinite; }
     @keyframes pulse { 50% { transform: scale(0.92); opacity: 0.8; } }
   </style>
