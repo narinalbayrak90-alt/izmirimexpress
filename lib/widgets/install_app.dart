@@ -70,8 +70,9 @@ class _InstallAppCardState extends ConsumerState<InstallAppCard> {
             Container(
               height: 40,
               width: 40,
-              decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(10)),
-              child: const Icon(Icons.install_mobile_rounded, color: AppColors.accent, size: 22),
+              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset('assets/logo.png', fit: BoxFit.cover),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
@@ -132,10 +133,10 @@ class _IosInstallSteps extends StatelessWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             ),
             const SizedBox(height: AppSpacing.md),
-            _Step(number: 1, icon: Icons.ios_share_rounded, text: 'pwa.ios_step_share'.tr()),
-            _Step(number: 2, icon: Icons.expand_circle_down_outlined, text: 'pwa.ios_step_more'.tr()),
-            _Step(number: 3, icon: Icons.add_box_outlined, text: 'pwa.ios_step_add'.tr()),
-            _Step(number: 4, icon: Icons.check_circle_outline_rounded, text: 'pwa.ios_step_confirm'.tr()),
+            _Step(number: 1, icon: 'share', text: 'pwa.ios_step_share'.tr()),
+            _Step(number: 2, icon: 'more', text: 'pwa.ios_step_more'.tr()),
+            _Step(number: 3, icon: 'add', text: 'pwa.ios_step_add'.tr()),
+            _Step(number: 4, icon: 'confirm', text: 'pwa.ios_step_confirm'.tr()),
             const SizedBox(height: AppSpacing.sm),
             Text('pwa.ios_note'.tr(), style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
           ],
@@ -149,7 +150,12 @@ class _Step extends StatelessWidget {
   const _Step({required this.number, required this.icon, required this.text});
 
   final int number;
-  final IconData icon;
+
+  /// Image under assets/install/ — Safari's Share, View More, Add to Home
+  /// Screen and Add symbols. Images rather than icon-font glyphs: phones
+  /// that still had an older cached copy of the trimmed icon font showed
+  /// these new glyphs as blank boxes.
+  final String icon;
   final String text;
 
   @override
@@ -167,7 +173,7 @@ class _Step extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Icon(icon, color: AppColors.accent, size: 22),
+          Image.asset('assets/install/$icon.png', width: 22, height: 22),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(text, style: const TextStyle(fontSize: 14, color: AppColors.textPrimary))),
         ],

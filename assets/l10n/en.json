@@ -387,8 +387,8 @@
     "account_row": "Install App",
     "ios_title": "Add to Home Screen",
     "ios_step_share": "Tap the Share icon in your browser.",
-    "ios_step_more": "Tap \"View More\" (the down arrow).",
-    "ios_step_add": "Choose \"Add to Home Screen\" (the + icon).",
+    "ios_step_more": "Tap \"View More\".",
+    "ios_step_add": "Choose \"Add to Home Screen\".",
     "ios_step_confirm": "Tap \"Add\" in the top right.",
     "ios_note": "İzmirim Express then opens from your home screen like an app."
   }

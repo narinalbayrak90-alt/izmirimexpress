@@ -239,7 +239,8 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     _MenuRowData(
                       icon: Icons.install_mobile_rounded,
                       iconColor: AppColors.accent,
-                      iconBackground: AppColors.infoBackground,
+                      iconBackground: AppColors.primary,
+                      image: 'assets/logo.png',
                       label: 'pwa.account_row'.tr(),
                       onTap: () => installApp(context),
                     ),
@@ -645,6 +646,7 @@ class _MenuRowData {
     required this.label,
     required this.onTap,
     this.isDestructive = false,
+    this.image,
   });
 
   final IconData icon;
@@ -653,6 +655,9 @@ class _MenuRowData {
   final String label;
   final VoidCallback? onTap;
   final bool isDestructive;
+
+  /// Asset image shown instead of [icon] (the app logo on Install App).
+  final String? image;
 }
 
 class _SettingsCard extends StatelessWidget {
@@ -717,7 +722,10 @@ class _MenuRow extends StatelessWidget {
                 color: data.iconBackground,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(data.icon, size: 18, color: data.iconColor),
+              clipBehavior: Clip.antiAlias,
+              child: data.image != null
+                  ? Image.asset(data.image!, fit: BoxFit.cover)
+                  : Icon(data.icon, size: 18, color: data.iconColor),
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(

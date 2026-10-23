@@ -20,16 +20,19 @@ rm -f build/web/assets/.env
 rm -rf "$target/app"
 cp -r build/web "$target/app"
 
-# main.dart.js gibi dosyaların adı her derlemede aynı kaldığı için tarayıcı
-# her açılışta güncel mi diye sorsun; .wasm ve .mjs türleri de tanıtılsın.
+# Dosya adları her derlemede aynı kaldığı için tarayıcı her açılışta güncel
+# mi diye sorsun; .wasm ve .mjs türleri de tanıtılsın.
 cat > "$target/app/.htaccess" <<'HTACCESS'
 AddType application/wasm .wasm
 AddType text/javascript .mjs
 
 <IfModule mod_headers.c>
-    <FilesMatch "\.(html|js|mjs|json|wasm)$">
-        Header set Cache-Control "no-cache"
-    </FilesMatch>
+    # Her dosya (simge yazı tipi, logolar dahil) her açılışta güncel mi diye
+    # sorulsun: adları derlemeden derlemeye değişmediği için aksi halde
+    # tarayıcı eski logoyu / yeni simgeleri içermeyen eski yazı tipini
+    # önbellekten göstermeye devam ediyordu. Değişmeyen dosyalar için cevap
+    # kısa bir "304 Not Modified" olur.
+    Header set Cache-Control "no-cache"
     # sw.js (uygulama yükleme) /app/ yerine tüm siteyi kapsayabilsin.
     <Files "sw.js">
         Header set Service-Worker-Allowed "/"
