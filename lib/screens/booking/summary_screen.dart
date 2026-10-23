@@ -8,6 +8,7 @@ import '../../services/api_exception.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/responsive_shell.dart';
 import '../home/home_category.dart';
 import 'booking_draft.dart';
 import 'booking_providers.dart';
@@ -253,17 +254,19 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
       ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: estimate == null ? null : () => _placeOrder(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(estimate == null ? 'booking.place_order'.tr() : 'booking.place_order_with_total'.tr(namedArgs: {'total': estimate.format(estimate.total)})),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_rounded, size: 18),
-              ],
+        child: DesktopActionWidth(
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: estimate == null ? null : () => _placeOrder(context),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(estimate == null ? 'booking.place_order'.tr() : 'booking.place_order_with_total'.tr(namedArgs: {'total': estimate.format(estimate.total)})),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, size: 18),
+                ],
+              ),
             ),
           ),
         ),

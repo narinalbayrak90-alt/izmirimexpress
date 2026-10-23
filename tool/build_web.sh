@@ -10,7 +10,9 @@ cd "$(dirname "$0")/.."
 # web sürümü onu okumaz (bkz. lib/config/env.dart).
 [ -f .env ] || cp .env.example .env
 
-flutter build web --release --base-href /app/ --no-wasm-dry-run
+# --wasm: tarayıcı destekliyorsa daha hızlı WebAssembly sürümü (skwasm)
+# yüklenir, desteklemiyorsa otomatik olarak JavaScript sürümüne düşer.
+flutter build web --release --wasm --base-href /app/
 
 # .env yayına gitmesin.
 rm -f build/web/assets/.env
@@ -19,12 +21,13 @@ rm -rf "$target/app"
 cp -r build/web "$target/app"
 
 # main.dart.js gibi dosyaların adı her derlemede aynı kaldığı için tarayıcı
-# her açılışta güncel mi diye sorsun; .wasm türü de tanıtılsın.
+# her açılışta güncel mi diye sorsun; .wasm ve .mjs türleri de tanıtılsın.
 cat > "$target/app/.htaccess" <<'HTACCESS'
 AddType application/wasm .wasm
+AddType text/javascript .mjs
 
 <IfModule mod_headers.c>
-    <FilesMatch "\.(html|js|json)$">
+    <FilesMatch "\.(html|js|mjs|json|wasm)$">
         Header set Cache-Control "no-cache"
     </FilesMatch>
 </IfModule>

@@ -44,6 +44,43 @@
       if (loading) loading.remove();
     });
   </script>
+  <script>
+    // Smooth mouse-wheel scrolling. Flutter jumps a whole wheel notch
+    // (~100px) in one frame, which reads as stuttering on a desktop page.
+    // A notch from a real mouse is caught here before Flutter sees it and
+    // replayed as small eased steps over the next frames. Trackpads (which
+    // already send small deltas), Ctrl + wheel and wheels over the Google
+    // map are left alone.
+    (function () {
+      var pending = 0, frame = 0, target = null, origin = null;
+
+      function step() {
+        var delta = Math.abs(pending) < 1 ? pending : pending * 0.25;
+        pending -= delta;
+        target.dispatchEvent(new WheelEvent('wheel', {
+          deltaY: delta, deltaMode: 0,
+          clientX: origin.clientX, clientY: origin.clientY,
+          screenX: origin.screenX, screenY: origin.screenY,
+          bubbles: true, cancelable: true, composed: true,
+        }));
+        frame = pending !== 0 ? requestAnimationFrame(step) : 0;
+      }
+
+      window.addEventListener('wheel', function (event) {
+        if (!event.isTrusted || event.ctrlKey || event.metaKey || event.deltaX !== 0) return;
+        if (!event.wheelDeltaY || event.wheelDeltaY % 120 !== 0) return;
+        if (event.deltaMode > 1) return;
+        if (event.target.closest && event.target.closest('.gm-style')) return;
+
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        pending += event.deltaMode === 1 ? event.deltaY * 40 : event.deltaY;
+        target = event.target;
+        origin = event;
+        if (!frame) frame = requestAnimationFrame(step);
+      }, { capture: true, passive: false });
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

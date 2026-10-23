@@ -29,15 +29,14 @@ class PickupDropApp extends ConsumerWidget {
         ref.read(oneSignalServiceProvider).initialize(appId);
       }
 
-      // App Setting > Language's `default_language` drives the app's
-      // locale until the customer explicitly picks one themselves
-      // (Account > Change Language) — a manual choice always wins from
-      // then on, so this never overrides it.
+      // İzmirim Express is a Turkish service: the app always opens in
+      // Turkish until the customer explicitly picks another language
+      // (Account > Change Language). The admin's `default_language` isn't
+      // applied — it was set to English on the live panel and kept
+      // switching every new visitor to English.
       final storage = ref.read(settingsStorageProvider);
-      if (!storage.hasManuallyChosenLanguage() &&
-          context.supportedLocales.any((locale) => locale.languageCode == settings.defaultLanguage) &&
-          context.locale.languageCode != settings.defaultLanguage) {
-        context.setLocale(Locale(settings.defaultLanguage));
+      if (!storage.hasManuallyChosenLanguage() && context.locale.languageCode != 'tr') {
+        context.setLocale(const Locale('tr'));
       }
     });
 

@@ -83,10 +83,10 @@ class LocationPickerScreen extends ConsumerStatefulWidget {
 }
 
 class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
-  // Neutral world-view default (no country bias) used only when there's no
+  // İzmir city center — the service area — used only when there's no
   // current-location lookup or caller-provided starting point.
-  static const _worldCenter = LatLng(20.0, 0.0);
-  static const _worldZoom = 2.0;
+  static const _worldCenter = LatLng(38.4237, 27.1428);
+  static const _worldZoom = 12.0;
 
   /// From this width (desktop web) the map and form sit side by side.
   static const _sideBySideMinWidth = 840.0;
@@ -160,11 +160,17 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     if (focused != _isFormFieldFocused) setState(() => _isFormFieldFocused = focused);
   }
 
-  /// A partly typed recipient number blocks Continue; an empty one is fine.
+  /// A partly typed recipient number shows an error under the field.
   bool get _receiverPhoneInvalid {
     final text = _receiverPhoneController.text.trim();
     return widget.showRecipientFields && text.isNotEmpty && !TrPhone.isValid(text);
   }
+
+  /// Recipient name and phone are required on the drop-off step — the
+  /// rider calls this person on delivery.
+  bool get _recipientIncomplete =>
+      widget.showRecipientFields &&
+      (_receiverNameController.text.trim().length < 2 || !TrPhone.isValid(_receiverPhoneController.text));
 
   Future<void> _loadWorkingHours() async {
     try {
@@ -354,7 +360,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
         hasResolvedLocation &&
         _distanceKm(_center, deliveryArea) > deliveryArea.radiusKm;
 
-    final canContinue = hasResolvedLocation && scheduleReady && !isOutsideDeliveryArea && !_receiverPhoneInvalid;
+    final canContinue = hasResolvedLocation && scheduleReady && !isOutsideDeliveryArea && !_recipientIncomplete;
 
     return Scaffold(
       appBar: AppBar(title: Text('booking.new_booking'.tr())),
@@ -444,6 +450,9 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
           myLocationEnabled: true,
           myLocationButtonEnabled: false,
           zoomControlsEnabled: false,
+          // Web: wheel and one-finger drag move the map directly, instead
+          // of asking for Ctrl + scroll / two fingers.
+          webGestureHandling: WebGestureHandling.greedy,
         ),
         // Fixed center pin — the map moves underneath it.
         IgnorePointer(
@@ -583,6 +592,7 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
           focusNode: _receiverNameFocus,
           textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
+          onChanged: (_) => setState(() {}),
           decoration: InputDecoration(labelText: 'booking.recipient_name_label'.tr()),
         ),
         const SizedBox(height: AppSpacing.sm),

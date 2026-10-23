@@ -192,17 +192,22 @@ class _HeroBanner extends ConsumerWidget {
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             flex: 5,
-            child: (imageUrl != null && imageUrl.isNotEmpty)
-                ? Image.network(
-                    imageUrl,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.local_shipping_rounded,
-                      size: 56,
-                      color: AppColors.primaryDark,
-                    ),
-                  )
-                : const Icon(Icons.local_shipping_rounded, size: 56, color: AppColors.primaryDark),
+            // Capped so the illustration doesn't blow the banner up to
+            // half a screen on a wide desktop page.
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 200),
+              child: (imageUrl != null && imageUrl.isNotEmpty)
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.local_shipping_rounded,
+                        size: 56,
+                        color: AppColors.primaryDark,
+                      ),
+                    )
+                  : const Icon(Icons.local_shipping_rounded, size: 56, color: AppColors.primaryDark),
+            ),
           ),
         ],
       ),

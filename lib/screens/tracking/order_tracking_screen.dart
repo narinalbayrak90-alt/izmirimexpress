@@ -361,6 +361,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> with 
             },
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
+            webGestureHandling: WebGestureHandling.greedy,
           ),
         ),
         Expanded(

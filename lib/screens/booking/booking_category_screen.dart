@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/responsive_shell.dart';
 import '../home/home_category.dart';
 import '../home/home_provider.dart';
 import '../welcome/welcome_provider.dart';
@@ -89,10 +90,15 @@ class _BookingCategoryScreenState extends ConsumerState<BookingCategoryScreen> {
                         // A Wrap (rather than GridView) so a fixed-size card
                         // renders at its natural width regardless of row
                         // count, left-aligned like a regular grid.
-                        const columns = 3;
-                        const aspectRatio = 0.85;
                         return LayoutBuilder(
                           builder: (context, constraints) {
+                            // 3 columns on a phone; on wider screens as many
+                            // as fit at about 120px, with square cards, so
+                            // they stay card-sized.
+                            final columns = ((constraints.maxWidth + AppSpacing.sm) / (120 + AppSpacing.sm))
+                                .floor()
+                                .clamp(3, 8);
+                            final aspectRatio = columns > 3 ? 1.0 : 0.85;
                             final cardWidth =
                                 (constraints.maxWidth -
                                     AppSpacing.sm * (columns - 1)) /
@@ -158,36 +164,38 @@ class _BookingCategoryScreenState extends ConsumerState<BookingCategoryScreen> {
                 ),
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _selectedCategoryId == null
-                            ? null
-                            : () {
-                                final items = categories.asData?.value;
-                                if (items == null) return;
-                                HomeCategory? selected;
-                                for (final item in items) {
-                                  if (item.id == _selectedCategoryId) {
-                                    selected = item;
-                                    break;
+                    DesktopActionWidth(
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _selectedCategoryId == null
+                              ? null
+                              : () {
+                                  final items = categories.asData?.value;
+                                  if (items == null) return;
+                                  HomeCategory? selected;
+                                  for (final item in items) {
+                                    if (item.id == _selectedCategoryId) {
+                                      selected = item;
+                                      break;
+                                    }
                                   }
-                                }
-                                if (selected == null) return;
-
-                                final draft = ref.read(bookingDraftProvider);
-                                ref.read(bookingDraftProvider.notifier).state = draft.copyWith(
-                                  category: selected,
-                                );
-                                context.push('/booking/pickup');
-                              },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('common.continue'.tr()),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward_rounded, size: 18),
-                          ],
+                                  if (selected == null) return;
+  
+                                  final draft = ref.read(bookingDraftProvider);
+                                  ref.read(bookingDraftProvider.notifier).state = draft.copyWith(
+                                    category: selected,
+                                  );
+                                  context.push('/booking/pickup');
+                                },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('common.continue'.tr()),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward_rounded, size: 18),
+                            ],
+                          ),
                         ),
                       ),
                     ),

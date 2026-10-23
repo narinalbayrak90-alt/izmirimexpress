@@ -19,6 +19,22 @@ class DesktopLayoutScope extends InheritedWidget {
   bool updateShouldNotify(DesktopLayoutScope oldWidget) => false;
 }
 
+/// Keeps a full-width action button (Continue, Place Order) at a button's
+/// width on desktop instead of a bar spanning the whole page.
+class DesktopActionWidth extends StatelessWidget {
+  const DesktopActionWidth({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!DesktopLayoutScope.of(context)) return child;
+    return Center(
+      child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420), child: child),
+    );
+  }
+}
+
 /// Wraps every route (via `MaterialApp.builder`) so the app fits the screen
 /// it runs on:
 ///
@@ -96,30 +112,41 @@ class _ResponsiveShellState extends ConsumerState<ResponsiveShell> {
     }
 
     final path = _path;
+    final theme = Theme.of(context);
     return DesktopLayoutScope(
-      child: ColoredBox(
-        color: AppColors.frameBackdrop,
-        child: Column(
-          children: [
-            _DesktopHeader(router: _router, path: path),
-            Expanded(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  const verticalMargin = AppSpacing.lg;
-                  final contentWidth = _contentWidthFor(path).clamp(0.0, constraints.maxWidth - 2 * AppSpacing.lg);
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: verticalMargin),
-                    child: _FramedContent(
-                      width: contentWidth,
-                      height: constraints.maxHeight - 2 * verticalMargin,
-                      borderRadius: 20,
-                      child: widget.child,
-                    ),
-                  );
-                },
-              ),
+      child: Theme(
+        // Phone-sized 52px buttons look oversized on a desktop page.
+        data: theme.copyWith(
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: theme.elevatedButtonTheme.style?.copyWith(
+              minimumSize: const WidgetStatePropertyAll(Size.fromHeight(46)),
             ),
-          ],
+          ),
+        ),
+        child: ColoredBox(
+          color: AppColors.frameBackdrop,
+          child: Column(
+            children: [
+              _DesktopHeader(router: _router, path: path),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    const verticalMargin = AppSpacing.lg;
+                    final contentWidth = _contentWidthFor(path).clamp(0.0, constraints.maxWidth - 2 * AppSpacing.lg);
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: verticalMargin),
+                      child: _FramedContent(
+                        width: contentWidth,
+                        height: constraints.maxHeight - 2 * verticalMargin,
+                        borderRadius: 20,
+                        child: widget.child,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -150,7 +177,11 @@ class _FramedContent extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(borderRadius),
             child: MediaQuery(
-              data: mediaQuery.copyWith(size: Size(width, height), padding: EdgeInsets.zero, viewPadding: EdgeInsets.zero),
+              data: mediaQuery.copyWith(
+                size: Size(width, height),
+                padding: EdgeInsets.zero,
+                viewPadding: EdgeInsets.zero,
+              ),
               child: child,
             ),
           ),
@@ -194,67 +225,82 @@ class _DesktopHeader extends ConsumerWidget {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1120),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Row(
-                  children: [
-                    InkWell(
-                      canRequestFocus: false,
-                      onTap: () => router.go('/home'),
-                      borderRadius: BorderRadius.circular(12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.xs),
-                        child: Row(
-                          children: [
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(10)),
-                              clipBehavior: Clip.antiAlias,
-                              child: logoUrl != null && logoUrl.isNotEmpty
-                                  ? Image.network(logoUrl, fit: BoxFit.cover, errorBuilder: (_, _, _) => const _LogoIcon())
-                                  : const _LogoIcon(),
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            Text(
-                              appName,
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                            ),
-                          ],
+              // The header links never take keyboard focus: the first one
+              // otherwise stays highlighted after every page change.
+              child: ExcludeFocus(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        canRequestFocus: false,
+                        onTap: () => router.go('/home'),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.xs),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                clipBehavior: Clip.antiAlias,
+                                child: logoUrl != null && logoUrl.isNotEmpty
+                                    ? Image.network(
+                                        logoUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, _, _) => const _LogoIcon(),
+                                      )
+                                    : const _LogoIcon(),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Text(
+                                appName,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    _HeaderLink(label: 'nav.home'.tr(), isActive: path == '/home', onTap: () => router.go('/home')),
-                    _HeaderLink(
-                      label: 'nav.bookings'.tr(),
-                      isActive: path == '/orders' || path.startsWith('/orders/'),
-                      onTap: () => _openAuthed(ref, '/orders', extra: {'filter': 'all'}),
-                    ),
-                    _HeaderLink(
-                      label: 'notifications.title'.tr(),
-                      isActive: path == '/notifications',
-                      onTap: () => _openAuthed(ref, '/notifications'),
-                    ),
-                    _HeaderLink(
-                      label: 'nav.account'.tr(),
-                      isActive: path.startsWith('/account'),
-                      onTap: () => _openAuthed(ref, '/account'),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    FilledButton.icon(
-                      onPressed: () => router.go('/booking'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: AppColors.textPrimary,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                      const Spacer(),
+                      _HeaderLink(label: 'nav.home'.tr(), isActive: path == '/home', onTap: () => router.go('/home')),
+                      _HeaderLink(
+                        label: 'nav.bookings'.tr(),
+                        isActive: path == '/orders' || path.startsWith('/orders/'),
+                        onTap: () => _openAuthed(ref, '/orders', extra: {'filter': 'all'}),
                       ),
-                      icon: const Icon(Icons.add_rounded, size: 20),
-                      label: Text('booking.new_booking'.tr()),
-                    ),
-                  ],
+                      _HeaderLink(
+                        label: 'notifications.title'.tr(),
+                        isActive: path == '/notifications',
+                        onTap: () => _openAuthed(ref, '/notifications'),
+                      ),
+                      _HeaderLink(
+                        label: 'nav.account'.tr(),
+                        isActive: path.startsWith('/account'),
+                        onTap: () => _openAuthed(ref, '/account'),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      FilledButton.icon(
+                        onPressed: () => router.go('/booking'),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: AppColors.textPrimary,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                        ),
+                        icon: const Icon(Icons.add_rounded, size: 20),
+                        label: Text('booking.new_booking'.tr()),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

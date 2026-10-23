@@ -1,5 +1,5 @@
 {
-  "app_name": "Pickup & Drop",
+  "app_name": "İzmirim Express",
   "common": {
     "ok": "OK",
     "loading": "Loading...",
@@ -155,9 +155,9 @@
     "web_checkout_prompt": "The payment page opened in a new tab. Once you've completed the payment there, tap \"I've paid\" to place your order.",
     "web_checkout_done": "I've paid",
     "recipient_title": "Recipient",
-    "recipient_hint": "Optional. The rider calls this person on delivery.",
-    "recipient_name_label": "Recipient name",
-    "recipient_phone_label": "Recipient phone",
+    "recipient_hint": "The rider calls this person on delivery.",
+    "recipient_name_label": "Recipient name *",
+    "recipient_phone_label": "Recipient phone *",
     "recipient_phone_error": "Enter a valid phone number (e.g. 532 123 45 67)",
     "recipient_line": "Recipient: {recipient}"
   },
