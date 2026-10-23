@@ -30,6 +30,10 @@ AddType text/javascript .mjs
     <FilesMatch "\.(html|js|mjs|json|wasm)$">
         Header set Cache-Control "no-cache"
     </FilesMatch>
+    # sw.js (uygulama yükleme) /app/ yerine tüm siteyi kapsayabilsin.
+    <Files "sw.js">
+        Header set Service-Worker-Allowed "/"
+    </Files>
 </IfModule>
 HTACCESS
 echo "Web sürümü $target/app klasörüne kopyalandı."

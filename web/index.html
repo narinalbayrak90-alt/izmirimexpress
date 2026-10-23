@@ -12,9 +12,10 @@
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="İzmirim Express">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-180.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
@@ -79,6 +80,49 @@
         origin = event;
         if (!frame) frame = requestAnimationFrame(step);
       }, { capture: true, passive: false });
+    })();
+  </script>
+  <script>
+    // App install (PWA). Android/desktop Chrome fire `beforeinstallprompt`;
+    // it's kept here so the app's "Install" button can show the browser's
+    // install dialog later. iOS has no such dialog: the app shows "Share >
+    // Add to Home Screen" steps instead. lib/services/pwa_install_web.dart
+    // reads this through `window.izmirimPwa`.
+    (function () {
+      var deferred = null;
+      var notify = function () { window.dispatchEvent(new Event('izmirim-pwa-change')); };
+
+      window.addEventListener('beforeinstallprompt', function (event) {
+        event.preventDefault();
+        deferred = event;
+        notify();
+      });
+      window.addEventListener('appinstalled', function () { deferred = null; notify(); });
+
+      window.izmirimPwa = {
+        isStandalone: function () {
+          return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        },
+        isIos: function () {
+          var ua = navigator.userAgent;
+          // iPadOS reports itself as a Mac; touch support tells them apart.
+          return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+        },
+        canPrompt: function () { return deferred !== null; },
+        prompt: function () {
+          if (!deferred) return Promise.resolve('unavailable');
+          var event = deferred;
+          deferred = null;
+          event.prompt();
+          return event.userChoice.then(function (choice) { notify(); return choice.outcome; });
+        },
+      };
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/app/sw.js', { scope: '/' }).catch(function () {});
+        });
+      }
     })();
   </script>
   <script src="flutter_bootstrap.js" async></script>

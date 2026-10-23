@@ -55,14 +55,14 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/orders',
         builder: (context, state) => MyOrdersScreen(
-          initialFilter: (state.extra as Map<String, dynamic>?)?['filter'] as String? ?? 'all',
+          initialFilter: _extraMap(state)?['filter'] as String? ?? 'all',
         ),
       ),
       GoRoute(
         path: '/orders/:orderId',
         builder: (context, state) => OrderTrackingScreen(
           orderId: int.parse(state.pathParameters['orderId']!),
-          showPaymentSuccessToast: (state.extra as Map<String, dynamic>?)?['paymentSuccess'] as bool? ?? false,
+          showPaymentSuccessToast: _extraMap(state)?['paymentSuccess'] as bool? ?? false,
         ),
       ),
       GoRoute(
@@ -73,7 +73,9 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(path: '/notifications', builder: (context, state) => const NotificationScreen()),
       GoRoute(
         path: '/account/personal-information',
-        builder: (context, state) => PersonalInformationScreen(initialProfile: state.extra as CustomerProfile),
+        builder: (context, state) => PersonalInformationRoute(
+          profile: state.extra is CustomerProfile ? state.extra as CustomerProfile : null,
+        ),
       ),
       GoRoute(path: '/account/saved-addresses', builder: (context, state) => const SavedAddressesScreen()),
       GoRoute(path: '/account/wallet', builder: (context, state) => const WalletScreen()),
@@ -85,7 +87,7 @@ GoRouter buildRouter(Ref ref) {
       GoRoute(
         path: '/otp-verify',
         builder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>?;
+          final extra = _extraMap(state);
           return OtpVerificationScreen(
             customerId: extra?['customerId'] as int?,
             identifier: extra?['identifier'] as String?,
@@ -98,4 +100,12 @@ GoRouter buildRouter(Ref ref) {
       body: Center(child: Text('common.page_not_found'.tr())),
     ),
   );
+}
+
+/// A route's map `extra`, or null. After a web page refresh GoRouter
+/// restores `extra` from browser history as a plain decoded map (not
+/// `Map<String, dynamic>`), and a direct cast there throws.
+Map<Object?, Object?>? _extraMap(GoRouterState state) {
+  final extra = state.extra;
+  return extra is Map ? extra.cast<Object?, Object?>() : null;
 }

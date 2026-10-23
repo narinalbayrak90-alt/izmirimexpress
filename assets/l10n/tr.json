@@ -16,7 +16,8 @@
     "unexpected_error": "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.",
     "request_timeout": "İstek zaman aşımına uğradı. Lütfen tekrar deneyin.",
     "no_internet": "İnternet bağlantısı yok. Lütfen bağlantınızı kontrol edin.",
-    "request_cancelled": "İstek iptal edildi."
+    "request_cancelled": "İstek iptal edildi.",
+    "close": "Kapat"
   },
   "auth": {
     "email_label": "E-posta",
@@ -378,5 +379,16 @@
     "netherlands": "Hollanda",
     "new_zealand": "Yeni Zelanda",
     "unknown": "Ülke kodu +{code}"
+  },
+  "pwa": {
+    "card_title": "Uygulamayı yükleyin",
+    "card_subtitle": "Ana ekranınızdan tek dokunuşla açın.",
+    "install": "Yükle",
+    "account_row": "Uygulamayı Yükle",
+    "ios_title": "Ana ekrana ekleyin",
+    "ios_step_share": "Tarayıcıdaki Paylaş simgesine dokunun.",
+    "ios_step_add": "\"Ana Ekrana Ekle\"yi seçin.",
+    "ios_step_confirm": "Sağ üstteki \"Ekle\"ye dokunun.",
+    "ios_note": "İzmirim Express artık ana ekranınızda, uygulama gibi açılır."
   }
 }

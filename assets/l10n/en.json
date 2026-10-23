@@ -16,7 +16,8 @@
     "unexpected_error": "Something unexpected happened. Please try again.",
     "request_timeout": "The request timed out. Please try again.",
     "no_internet": "No internet connection. Please check your network.",
-    "request_cancelled": "Request was cancelled."
+    "request_cancelled": "Request was cancelled.",
+    "close": "Close"
   },
   "auth": {
     "email_label": "Email",
@@ -378,5 +379,16 @@
     "netherlands": "Netherlands",
     "new_zealand": "New Zealand",
     "unknown": "Country code +{code}"
+  },
+  "pwa": {
+    "card_title": "Install the app",
+    "card_subtitle": "Open it from your home screen in one tap.",
+    "install": "Install",
+    "account_row": "Install App",
+    "ios_title": "Add to Home Screen",
+    "ios_step_share": "Tap the Share icon in your browser.",
+    "ios_step_add": "Choose \"Add to Home Screen\".",
+    "ios_step_confirm": "Tap \"Add\" in the top right.",
+    "ios_note": "İzmirim Express then opens from your home screen like an app."
   }
 }

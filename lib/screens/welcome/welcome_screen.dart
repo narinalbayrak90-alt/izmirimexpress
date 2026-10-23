@@ -57,7 +57,7 @@ class _WelcomeView extends ConsumerWidget {
               Text(
                 content.description,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
               ),
               const Spacer(flex: 3),
               PrimaryButton(

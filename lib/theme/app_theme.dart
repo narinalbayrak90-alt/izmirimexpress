@@ -26,9 +26,12 @@ class AppTheme {
           color: AppColors.textPrimary,
           height: 1.3,
         ),
+        // Also the default style of every text field's typed value, so it
+        // must be the primary text color — grey here made filled-in fields
+        // (Personal Information) look as faded as their hints.
         bodyLarge: const TextStyle(
           fontSize: 16,
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           height: 1.5,
         ),
       ),

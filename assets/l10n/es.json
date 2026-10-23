@@ -16,7 +16,8 @@
     "unexpected_error": "Ocurrió un error inesperado. Inténtalo de nuevo.",
     "request_timeout": "La solicitud ha caducado. Inténtalo de nuevo.",
     "no_internet": "Sin conexión a internet. Revisa tu red.",
-    "request_cancelled": "La solicitud fue cancelada."
+    "request_cancelled": "La solicitud fue cancelada.",
+    "close": "Cerrar"
   },
   "auth": {
     "email_label": "Correo electrónico",
@@ -378,5 +379,16 @@
     "netherlands": "Países Bajos",
     "new_zealand": "Nueva Zelanda",
     "unknown": "Código de país +{code}"
+  },
+  "pwa": {
+    "card_title": "Instala la app",
+    "card_subtitle": "Ábrela desde tu pantalla de inicio con un toque.",
+    "install": "Instalar",
+    "account_row": "Instalar app",
+    "ios_title": "Añadir a pantalla de inicio",
+    "ios_step_share": "Toca el icono Compartir del navegador.",
+    "ios_step_add": "Elige \"Añadir a pantalla de inicio\".",
+    "ios_step_confirm": "Toca \"Añadir\" arriba a la derecha.",
+    "ios_note": "İzmirim Express se abrirá desde tu pantalla de inicio como una app."
   }
 }

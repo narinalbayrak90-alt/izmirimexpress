@@ -6,10 +6,12 @@ import 'package:go_router/go_router.dart';
 import '../../providers/app_providers.dart';
 import '../../services/api_exception.dart';
 import '../../services/auth_service.dart';
+import '../../services/pwa_install.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/install_app.dart';
 
 const _languages = {'tr': 'Türkçe', 'en': 'English', 'es': 'Español', 'ar': 'العربية'};
 
@@ -233,6 +235,14 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     label: 'account.change_language'.tr(),
                     onTap: _showLanguagePicker,
                   ),
+                  if (PwaInstall.isAvailable)
+                    _MenuRowData(
+                      icon: Icons.install_mobile_rounded,
+                      iconColor: AppColors.accent,
+                      iconBackground: AppColors.infoBackground,
+                      label: 'pwa.account_row'.tr(),
+                      onTap: () => installApp(context),
+                    ),
                   _MenuRowData(
                     icon: Icons.headset_mic_outlined,
                     iconColor: AppColors.accent,

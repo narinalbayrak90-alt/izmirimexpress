@@ -11,9 +11,53 @@ import '../../services/app_settings.dart';
 import '../../services/auth_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../widgets/app_loader.dart';
 import '../../widgets/country_code_picker.dart';
 import '../../widgets/primary_button.dart';
 import '../home/home_provider.dart';
+
+/// Route entry for [PersonalInformationScreen]. The Account screen passes
+/// the profile it already has; when there's none — the web page was
+/// refreshed, or the URL opened directly, which drops GoRouter's `extra` —
+/// the profile is fetched here instead of failing the cast into a blank
+/// grey screen.
+class PersonalInformationRoute extends ConsumerStatefulWidget {
+  const PersonalInformationRoute({super.key, this.profile});
+
+  final CustomerProfile? profile;
+
+  @override
+  ConsumerState<PersonalInformationRoute> createState() => _PersonalInformationRouteState();
+}
+
+class _PersonalInformationRouteState extends ConsumerState<PersonalInformationRoute> {
+  late Future<CustomerProfile> _profile = _load();
+
+  Future<CustomerProfile> _load() =>
+      widget.profile != null ? Future.value(widget.profile) : ref.read(authServiceProvider).getProfile();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<CustomerProfile>(
+      future: _profile,
+      builder: (context, snapshot) {
+        final profile = snapshot.data;
+        if (profile != null) return PersonalInformationScreen(initialProfile: profile);
+        return Scaffold(
+          appBar: AppBar(title: Text('account.personal_information'.tr())),
+          body: Center(
+            child: snapshot.hasError
+                ? TextButton(
+                    onPressed: () => setState(() => _profile = _load()),
+                    child: Text('common.retry'.tr()),
+                  )
+                : const AppLoader(),
+          ),
+        );
+      },
+    );
+  }
+}
 
 /// Personal Information / Account Setting screen (project.txt Module 14) —
 /// edits the same fields collected at signup (name, email, country code +

@@ -9,6 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/responsive_shell.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/install_app.dart';
 import '../booking/booking_providers.dart';
 import '../welcome/welcome_provider.dart';
 import 'active_orders_carousel.dart';
@@ -62,6 +63,7 @@ class HomeScreen extends ConsumerWidget {
                 const _HomeHeader(),
                 const SizedBox(height: AppSpacing.lg),
               ],
+              const InstallAppCard(),
               const _HeroBanner(),
               const SizedBox(height: AppSpacing.xl),
               Text('home.send_anything'.tr(), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 19)),

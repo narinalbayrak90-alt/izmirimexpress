@@ -15,6 +15,7 @@ class SettingsStorageService {
 
   static const _key = 'app_settings';
   static const _languageChosenKey = 'language_manually_chosen';
+  static const _installCardDismissedKey = 'install_card_dismissed';
 
   AppSettings? read() {
     final raw = _prefs.getString(_key);
@@ -36,4 +37,10 @@ class SettingsStorageService {
   bool hasManuallyChosenLanguage() => _prefs.getBool(_languageChosenKey) ?? false;
 
   Future<void> setManuallyChosenLanguage() => _prefs.setBool(_languageChosenKey, true);
+
+  /// Whether the customer closed the home screen's "Install the app" card
+  /// (Account > Install App still offers it).
+  bool isInstallCardDismissed() => _prefs.getBool(_installCardDismissedKey) ?? false;
+
+  Future<void> setInstallCardDismissed() => _prefs.setBool(_installCardDismissedKey, true);
 }
