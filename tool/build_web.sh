@@ -17,4 +17,16 @@ rm -f build/web/assets/.env
 
 rm -rf "$target/app"
 cp -r build/web "$target/app"
+
+# main.dart.js gibi dosyaların adı her derlemede aynı kaldığı için tarayıcı
+# her açılışta güncel mi diye sorsun; .wasm türü de tanıtılsın.
+cat > "$target/app/.htaccess" <<'HTACCESS'
+AddType application/wasm .wasm
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(html|js|json)$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
+HTACCESS
 echo "Web sürümü $target/app klasörüne kopyalandı."
