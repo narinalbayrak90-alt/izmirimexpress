@@ -105,7 +105,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     Text(
                       'orders.distance_and_method'.tr(namedArgs: {
                         'distance': status.distanceKm.toStringAsFixed(1),
-                        'method': status.paymentMethod.toUpperCase(),
+                        'method': paymentMethodLabel(status.paymentMethod),
                       }),
                       style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
@@ -122,10 +122,17 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
         _AddressCard(icon: Icons.trip_origin_rounded, iconColor: AppColors.success, label: 'orders.pickup'.tr(), address: status.pickup),
         const SizedBox(height: AppSpacing.sm),
         _AddressCard(icon: Icons.location_on_rounded, iconColor: AppColors.error, label: 'orders.dropoff'.tr(), address: status.dropoff),
+        if ((status.receiverName ?? '').isNotEmpty || (status.receiverPhone ?? '').isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          Text('booking.recipient_title'.tr(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+          const SizedBox(height: AppSpacing.sm),
+          if ((status.receiverName ?? '').isNotEmpty) _InfoRow(label: 'booking.recipient_name_label'.tr(), value: status.receiverName!),
+          if ((status.receiverPhone ?? '').isNotEmpty) _InfoRow(label: 'booking.recipient_phone_label'.tr(), value: status.receiverPhone!),
+        ],
         const SizedBox(height: AppSpacing.lg),
         Text('orders.payment'.tr(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
         const SizedBox(height: AppSpacing.sm),
-        _InfoRow(label: 'orders.payment_method'.tr(), value: status.paymentMethod.toUpperCase()),
+        _InfoRow(label: 'orders.payment_method'.tr(), value: paymentMethodLabel(status.paymentMethod)),
         _InfoRow(label: 'orders.payment_status'.tr(), value: status.paymentStatus == 'paid' ? 'orders.paid'.tr() : 'order_status.pending'.tr()),
         _InfoRow(label: 'orders.total'.tr(), value: settings.format(status.total)),
         if (status.rider != null) ...[

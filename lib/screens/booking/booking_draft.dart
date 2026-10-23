@@ -11,6 +11,8 @@ class BookingAddress {
     this.landmark = '',
     this.remark = '',
     this.label,
+    this.contactName = '',
+    this.contactPhone,
   });
 
   final LatLng? latLng;
@@ -24,6 +26,14 @@ class BookingAddress {
   /// picker. Null when the customer didn't tag this address.
   final String? label;
 
+  /// Who the rider should ask for / call at this address — only collected
+  /// for the drop-off (the recipient), and sent as the order's
+  /// `receiver_name`/`receiver_phone` rather than as part of the address.
+  final String contactName;
+
+  /// E.164 (`+905321234567`), or null when not given.
+  final String? contactPhone;
+
   BookingAddress copyWith({
     LatLng? latLng,
     String? formattedAddress,
@@ -31,6 +41,8 @@ class BookingAddress {
     String? landmark,
     String? remark,
     String? label,
+    String? contactName,
+    String? contactPhone,
   }) {
     return BookingAddress(
       latLng: latLng ?? this.latLng,
@@ -39,6 +51,8 @@ class BookingAddress {
       landmark: landmark ?? this.landmark,
       remark: remark ?? this.remark,
       label: label ?? this.label,
+      contactName: contactName ?? this.contactName,
+      contactPhone: contactPhone ?? this.contactPhone,
     );
   }
 

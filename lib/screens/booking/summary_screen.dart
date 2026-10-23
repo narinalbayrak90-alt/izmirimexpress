@@ -363,6 +363,10 @@ class _AddressCard extends StatelessWidget {
       address.houseNumber,
       address.landmark,
       if (address.remark.isNotEmpty) 'booking.note_prefix'.tr(namedArgs: {'note': address.remark}),
+      if (address.contactName.isNotEmpty || address.contactPhone != null)
+        'booking.recipient_line'.tr(namedArgs: {
+          'recipient': [address.contactName, address.contactPhone ?? ''].where((v) => v.isNotEmpty).join(' '),
+        }),
     ].where((value) => value.trim().isNotEmpty).join(' · ');
 
     return Container(

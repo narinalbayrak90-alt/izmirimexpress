@@ -132,6 +132,8 @@ class OrderStatus {
     this.etaMinutes,
     this.pickupOtp,
     this.deliveryOtp,
+    this.receiverName,
+    this.receiverPhone,
   });
 
   final int id;
@@ -156,6 +158,10 @@ class OrderStatus {
 
   /// Same idea as [pickupOtp], for the drop-off handoff.
   final String? deliveryOtp;
+
+  /// The recipient the customer entered on the Drop-off step, if any.
+  final String? receiverName;
+  final String? receiverPhone;
 
   bool get isCancelled => status == 'cancelled';
 
@@ -185,6 +191,8 @@ class OrderStatus {
       etaMinutes: json['eta_minutes'] as int?,
       pickupOtp: order['pickup_otp'] as String?,
       deliveryOtp: order['delivery_otp'] as String?,
+      receiverName: order['receiver_name'] as String?,
+      receiverPhone: order['receiver_phone'] as String?,
     );
   }
 }
@@ -258,4 +266,12 @@ class OrderListPage {
       lastPage: json['last_page'] as int,
     );
   }
+}
+
+/// Customer-facing name of a payment method ("cod" → "Kapıda Nakit Ödeme"),
+/// reusing the payment screen's own labels.
+String paymentMethodLabel(String method) {
+  final key = 'booking.payment_${method}_title';
+  final label = key.tr();
+  return label == key ? method.toUpperCase() : label;
 }

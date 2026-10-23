@@ -25,6 +25,7 @@ class DropoffLocationScreen extends ConsumerWidget {
       autoLocateOnLoad: false,
       autoFocusSearch: true,
       initialCenter: pickup?.latLng,
+      showRecipientFields: true,
       onContinue: (address, _) {
         final draft = ref.read(bookingDraftProvider);
         ref.read(bookingDraftProvider.notifier).state = draft.copyWith(dropoff: address);

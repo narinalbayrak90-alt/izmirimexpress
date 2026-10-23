@@ -61,6 +61,8 @@ class OrderService {
         'payment_method': paymentMethod,
         if (couponCode != null && couponCode.isNotEmpty) 'coupon_code': couponCode,
         if (scheduledAt != null) 'scheduled_at': scheduledAt.toIso8601String(),
+        if (dropoff.contactName.trim().isNotEmpty) 'receiver_name': dropoff.contactName.trim(),
+        'receiver_phone': ?dropoff.contactPhone,
         'stripe_payment_intent_id': ?stripePaymentIntentId,
         'razorpay_payment_id': ?razorpayPaymentId,
         'razorpay_order_id': ?razorpayOrderId,

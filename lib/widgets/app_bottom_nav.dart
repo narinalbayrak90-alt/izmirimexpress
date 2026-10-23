@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/app_providers.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
+import 'responsive_shell.dart';
 
 /// Which bottom-nav destination is currently showing, so [AppBottomNav] can
 /// highlight the right tab. "Bookings"/"Track" both push the Order History
@@ -46,6 +47,9 @@ class AppBottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // On desktop the shell's header carries the navigation instead.
+    if (DesktopLayoutScope.of(context)) return const SizedBox.shrink();
+
     final isHome = activeTab == AppTab.home;
     final isAccount = activeTab == AppTab.account;
 

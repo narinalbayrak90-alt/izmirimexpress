@@ -34,7 +34,15 @@ class ApiClient {
     try {
       final response = await call();
       final body = response.data;
-      return body is Map<String, dynamic> ? body['data'] : body;
+      // Every endpoint answers with the JSON envelope; anything else (an
+      // HTML error or maintenance page from the host) is a failed request,
+      // not data for the caller to choke on.
+      if (body is! Map<String, dynamic>) {
+        throw ApiException(message: 'common.unexpected_error'.tr(), statusCode: response.statusCode);
+      }
+      return body['data'];
+    } on ApiException {
+      rethrow;
     } on DioException catch (e) {
       final error = e.error;
       if (error is ApiException) throw error;

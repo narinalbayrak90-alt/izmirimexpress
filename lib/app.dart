@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/app_providers.dart';
 import 'screens/home/home_provider.dart';
-import 'theme/app_colors.dart';
 import 'theme/app_theme.dart';
+import 'widgets/responsive_shell.dart';
 
 /// Root app widget: wires the router, theme and localization together.
 class PickupDropApp extends ConsumerWidget {
@@ -49,48 +49,7 @@ class PickupDropApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      builder: (context, child) => _MobileWidthFrame(child: child ?? const SizedBox.shrink()),
-    );
-  }
-}
-
-/// Keeps the app at phone width on wide screens (the web build on a
-/// desktop browser): screens are laid out for a phone — full-width buttons,
-/// edge-to-edge cards — and stretched across a monitor they turn into huge
-/// bars. On a phone-sized screen this is a no-op.
-///
-/// [MediaQuery] is narrowed too, so widgets that size themselves from the
-/// screen width (sheets, carousels, dialogs) see the frame, not the window.
-class _MobileWidthFrame extends StatelessWidget {
-  const _MobileWidthFrame({required this.child});
-
-  final Widget child;
-
-  static const double maxWidth = 480;
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    if (mediaQuery.size.width <= maxWidth) return child;
-
-    return ColoredBox(
-      color: AppColors.frameBackdrop,
-      child: Center(
-        child: SizedBox(
-          width: maxWidth,
-          child: DecoratedBox(
-            decoration: const BoxDecoration(
-              boxShadow: [BoxShadow(color: Color(0x1F000000), blurRadius: 24)],
-            ),
-            child: ClipRect(
-              child: MediaQuery(
-                data: mediaQuery.copyWith(size: Size(maxWidth, mediaQuery.size.height)),
-                child: child,
-              ),
-            ),
-          ),
-        ),
-      ),
+      builder: (context, child) => ResponsiveShell(child: child ?? const SizedBox.shrink()),
     );
   }
 }

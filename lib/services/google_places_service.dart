@@ -31,7 +31,7 @@ class GooglePlacesService {
 
     final response = await _dio.get(
       '/place/autocomplete/json',
-      queryParameters: {'input': input, 'key': Env.googleMapsApiKey},
+      queryParameters: {'input': input, 'language': 'tr', 'components': 'country:tr', 'key': Env.googleMapsApiKey},
     );
 
     final predictions = response.data['predictions'] as List<dynamic>? ?? [];
@@ -48,7 +48,7 @@ class GooglePlacesService {
   Future<LatLng?> placeDetails(String placeId) async {
     final response = await _dio.get(
       '/place/details/json',
-      queryParameters: {'place_id': placeId, 'fields': 'geometry', 'key': Env.googleMapsApiKey},
+      queryParameters: {'place_id': placeId, 'fields': 'geometry', 'language': 'tr', 'key': Env.googleMapsApiKey},
     );
 
     final location = response.data['result']?['geometry']?['location'];
@@ -61,6 +61,7 @@ class GooglePlacesService {
       '/geocode/json',
       queryParameters: {
         'latlng': '${position.latitude},${position.longitude}',
+        'language': 'tr',
         'key': Env.googleMapsApiKey,
       },
     );

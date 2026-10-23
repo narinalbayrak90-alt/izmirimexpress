@@ -7,6 +7,7 @@ import '../../providers/app_providers.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_bottom_nav.dart';
+import '../../widgets/responsive_shell.dart';
 import '../../widgets/app_loader.dart';
 import '../booking/booking_providers.dart';
 import '../welcome/welcome_provider.dart';
@@ -43,6 +44,8 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isDesktop = DesktopLayoutScope.of(context);
+
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -50,10 +53,15 @@ class HomeScreen extends ConsumerWidget {
           onRefresh: () => _onRefresh(ref),
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
+            padding: isDesktop
+                ? const EdgeInsets.all(AppSpacing.xl)
+                : const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.xl),
             children: [
-              const _HomeHeader(),
-              const SizedBox(height: AppSpacing.lg),
+              // On desktop the site header already shows the logo and links.
+              if (!isDesktop) ...[
+                const _HomeHeader(),
+                const SizedBox(height: AppSpacing.lg),
+              ],
               const _HeroBanner(),
               const SizedBox(height: AppSpacing.xl),
               Text('home.send_anything'.tr(), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 19)),
@@ -229,7 +237,9 @@ class _CategoryGrid extends ConsumerWidget {
         // regular grid.
         return LayoutBuilder(
           builder: (context, constraints) {
-            final cardWidth = (constraints.maxWidth - AppSpacing.sm * (_columns - 1)) / _columns;
+            // More columns once there's room for them (desktop web).
+            final columns = constraints.maxWidth >= 900 ? _columns * 2 : _columns;
+            final cardWidth = (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
             return Wrap(
               alignment: WrapAlignment.start,
               spacing: AppSpacing.sm,

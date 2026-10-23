@@ -153,7 +153,13 @@
     "payment_failed": "Ödeme başarısız oldu. Lütfen tekrar deneyin.",
     "order_payment": "Sipariş Ödemesi",
     "web_checkout_prompt": "Ödeme sayfası yeni bir sekmede açıldı. Ödemeyi orada tamamladıktan sonra siparişinizi vermek için \"Ödemeyi yaptım\" düğmesine dokunun.",
-    "web_checkout_done": "Ödemeyi yaptım"
+    "web_checkout_done": "Ödemeyi yaptım",
+    "recipient_title": "Alıcı Bilgileri",
+    "recipient_hint": "İsteğe bağlı. Kurye teslimatta bu kişiyi arar.",
+    "recipient_name_label": "Alıcı adı soyadı",
+    "recipient_phone_label": "Alıcı telefonu",
+    "recipient_phone_error": "Geçerli bir telefon numarası girin (örn. 532 123 45 67)",
+    "recipient_line": "Alıcı: {recipient}"
   },
   "vehicle": {
     "bike": "Motosiklet",

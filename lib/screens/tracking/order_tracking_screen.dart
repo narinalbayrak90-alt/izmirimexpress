@@ -447,7 +447,7 @@ class _OrderSummaryRow extends StatelessWidget {
                 Text(
                   'orders.distance_and_method'.tr(namedArgs: {
                     'distance': status.distanceKm.toStringAsFixed(1),
-                    'method': status.paymentMethod.toUpperCase(),
+                    'method': paymentMethodLabel(status.paymentMethod),
                   }),
                   style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),

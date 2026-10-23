@@ -13,6 +13,7 @@ import '../../services/app_settings.dart';
 import '../../services/google_places_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../utils/phone_format.dart';
 import '../../widgets/app_loader.dart';
 import '../home/home_provider.dart';
 import 'booking_draft.dart';
@@ -51,6 +52,7 @@ class LocationPickerScreen extends ConsumerStatefulWidget {
     this.initialCenter,
     this.showLandmarkField = true,
     this.showScheduleOption = false,
+    this.showRecipientFields = false,
     this.restrictToDeliveryArea = false,
   });
 
@@ -61,6 +63,9 @@ class LocationPickerScreen extends ConsumerStatefulWidget {
   final LatLng? initialCenter;
   final bool showLandmarkField;
   final bool showScheduleOption;
+
+  /// Drop-off step: optional recipient name/phone for the rider to call.
+  final bool showRecipientFields;
 
   /// When true, a pin outside the admin-configured delivery area (App
   /// Setting > Delivery Area) blocks "Continue" with an inline error —
@@ -83,10 +88,23 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   static const _worldCenter = LatLng(20.0, 0.0);
   static const _worldZoom = 2.0;
 
+  /// From this width (desktop web) the map and form sit side by side.
+  static const _sideBySideMinWidth = 840.0;
+
   final _searchController = TextEditingController();
   final _houseNumberController = TextEditingController();
   final _landmarkController = TextEditingController();
   final _remarkController = TextEditingController();
+  final _receiverNameController = TextEditingController();
+  final _receiverPhoneController = TextEditingController();
+
+  final _houseNumberFocus = FocusNode();
+  final _landmarkFocus = FocusNode();
+  final _remarkFocus = FocusNode();
+  final _receiverNameFocus = FocusNode();
+  final _receiverPhoneFocus = FocusNode();
+  late final _formFocusNodes = [_houseNumberFocus, _landmarkFocus, _remarkFocus, _receiverNameFocus, _receiverPhoneFocus];
+  bool _isFormFieldFocused = false;
 
   GoogleMapController? _mapController;
   late LatLng _center = widget.initialCenter ?? _worldCenter;
@@ -109,6 +127,9 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
   @override
   void initState() {
     super.initState();
+    for (final node in _formFocusNodes) {
+      node.addListener(_onFormFocusChanged);
+    }
     if (widget.autoLocateOnLoad) {
       _isLocatingDevice = true;
       _useCurrentLocation();
@@ -124,9 +145,25 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
     _houseNumberController.dispose();
     _landmarkController.dispose();
     _remarkController.dispose();
+    _receiverNameController.dispose();
+    _receiverPhoneController.dispose();
+    for (final node in _formFocusNodes) {
+      node.dispose();
+    }
     _searchDebounce?.cancel();
     _mapController?.dispose();
     super.dispose();
+  }
+
+  void _onFormFocusChanged() {
+    final focused = _formFocusNodes.any((node) => node.hasFocus);
+    if (focused != _isFormFieldFocused) setState(() => _isFormFieldFocused = focused);
+  }
+
+  /// A partly typed recipient number blocks Continue; an empty one is fine.
+  bool get _receiverPhoneInvalid {
+    final text = _receiverPhoneController.text.trim();
+    return widget.showRecipientFields && text.isNotEmpty && !TrPhone.isValid(text);
   }
 
   Future<void> _loadWorkingHours() async {
@@ -317,231 +354,322 @@ class _LocationPickerScreenState extends ConsumerState<LocationPickerScreen> {
         hasResolvedLocation &&
         _distanceKm(_center, deliveryArea) > deliveryArea.radiusKm;
 
-    final canContinue = hasResolvedLocation && scheduleReady && !isOutsideDeliveryArea;
+    final canContinue = hasResolvedLocation && scheduleReady && !isOutsideDeliveryArea && !_receiverPhoneInvalid;
 
     return Scaffold(
       appBar: AppBar(title: Text('booking.new_booking'.tr())),
       body: SafeArea(
         top: false,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, 0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final stepper = Padding(
+              padding: const EdgeInsets.all(AppSpacing.md),
               child: BookingStepper(currentStep: widget.stepIndex),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            // Deliberately NOT inside the scrollable below — a GoogleMap
-            // nested in a ListView loses vertical drag gestures to the
-            // ListView's own scroll recognizer, making the map undraggable.
-            // Giving it a fixed area outside any scrollable avoids that
-            // gesture-arena conflict entirely.
-            SizedBox(
-              height: 320,
-              child: Stack(
+            );
+            final form = SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: _buildForm(isOutsideDeliveryArea),
+            );
+
+            // Desktop web: map and form side by side, like a regular site.
+            if (constraints.maxWidth >= _sideBySideMinWidth) {
+              return Column(
                 children: [
-                  GoogleMap(
-                    initialCameraPosition: CameraPosition(
-                      target: _center,
-                      zoom: widget.initialCenter != null ? 16 : _worldZoom,
-                    ),
-                    onMapCreated: (controller) => _mapController = controller,
-                    onCameraMove: (position) => _center = position.target,
-                    onCameraIdle: () => _resolveAddress(_center),
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: false,
-                    zoomControlsEnabled: false,
-                  ),
-                  // Fixed center pin — the map moves underneath it.
-                  IgnorePointer(
-                    child: Center(
-                      child: Transform.translate(
-                        offset: const Offset(0, -20),
-                        child: const Icon(
-                          Icons.location_on_rounded,
-                          size: 44,
-                          color: AppColors.primaryDark,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: AppSpacing.md,
-                    right: AppSpacing.md,
-                    top: AppSpacing.md,
-                    child: _SearchBar(
-                      controller: _searchController,
-                      suggestions: _suggestions,
-                      autofocus: widget.autoFocusSearch,
-                      onChanged: _onSearchChanged,
-                      onSuggestionSelected: _onSuggestionSelected,
-                    ),
-                  ),
-                  Positioned(
-                    right: AppSpacing.md,
-                    bottom: AppSpacing.md,
-                    child: FloatingActionButton.small(
-                      heroTag: 'use-current-location-${widget.stepIndex}',
-                      backgroundColor: AppColors.background,
-                      foregroundColor: AppColors.textPrimary,
-                      onPressed: _isLocatingDevice ? null : _useCurrentLocation,
-                      child: _isLocatingDevice
-                          ? const AppLoader(size: 18, color: AppColors.textPrimary)
-                          : const Icon(Icons.my_location_rounded),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            widget.addressLabel,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          InkWell(
-                            onTap: _showSavedAddresses,
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.bookmark_outline_rounded, size: 15, color: AppColors.accent),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'booking.choose_saved_address'.tr(),
-                                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.accent),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      _AddressPreview(address: _address, isResolving: _isResolvingAddress),
-                      if (isOutsideDeliveryArea) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        const _OutsideDeliveryAreaBanner(),
-                      ],
-                      const SizedBox(height: AppSpacing.md),
-                      Row(
-                        children: [
-                          for (final option in _addressLabels) ...[
-                            Expanded(
-                              child: _AddressLabelChip(
-                                label: option.labelKey.tr(),
-                                icon: option.icon,
-                                selected: _selectedLabel == option.value,
-                                onTap: () => setState(() => _selectedLabel = option.value),
-                              ),
-                            ),
-                            if (option != _addressLabels.last) const SizedBox(width: AppSpacing.sm),
-                          ],
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      TextField(
-                        controller: _houseNumberController,
-                        decoration: InputDecoration(
-                          labelText: 'booking.house_number_label'.tr(),
-                        ),
-                      ),
-                      if (widget.showLandmarkField) ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        TextField(
-                          controller: _landmarkController,
-                          decoration: InputDecoration(labelText: 'booking.landmark_label'.tr()),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.sm),
-                      TextField(
-                        controller: _remarkController,
-                        decoration: InputDecoration(labelText: 'booking.remark_label'.tr()),
-                      ),
-                      if (widget.showScheduleOption) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        _ScheduleSection(
-                          isScheduled: _isScheduled,
-                          scheduledDate: _scheduledDate,
-                          scheduledTime: _scheduledTime,
-                          onModeChanged: (scheduled) => setState(() => _isScheduled = scheduled),
-                          onPickDate: _pickScheduleDate,
-                          onPickTime: _pickScheduleTime,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: AppColors.background,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
-                    blurRadius: 16,
-                    offset: const Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                ),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: canContinue
-                        ? () {
-                            DateTime? scheduledAt;
-                            if (widget.showScheduleOption && _isScheduled) {
-                              final date = _scheduledDate!;
-                              final time = _scheduledTime!;
-                              scheduledAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
-                            }
-                            widget.onContinue(
-                              BookingAddress(
-                                latLng: _center,
-                                formattedAddress: _address,
-                                houseNumber: _houseNumberController.text,
-                                landmark: _landmarkController.text,
-                                remark: _remarkController.text,
-                                label: _selectedLabel,
-                              ),
-                              scheduledAt,
-                            );
-                          }
-                        : null,
+                  stepper,
+                  Expanded(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text('common.continue'.tr()),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.arrow_forward_rounded, size: 18),
+                        Expanded(
+                          flex: 6,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, 0, AppSpacing.md),
+                            child: ClipRRect(borderRadius: BorderRadius.circular(16), child: _buildMap()),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Column(
+                            children: [
+                              Expanded(child: form),
+                              _buildContinueBar(canContinue),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
+                ],
+              );
+            }
+
+            // Phone: while one of the form fields below the map is being
+            // typed into, the stepper and map step aside so the field (and
+            // what's typed in it) stays visible above the on-screen keyboard.
+            final mapHeight = (constraints.maxHeight * 0.4).clamp(200.0, 320.0);
+            return Column(
+              children: [
+                if (!_isFormFieldFocused) stepper,
+                // Deliberately NOT inside the scrollable below — a GoogleMap
+                // nested in a ListView loses vertical drag gestures to the
+                // ListView's own scroll recognizer, making the map undraggable.
+                // Giving it a fixed area outside any scrollable avoids that
+                // gesture-arena conflict entirely.
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: _isFormFieldFocused ? 0 : mapHeight,
+                  child: ClipRect(child: _buildMap()),
+                ),
+                Expanded(child: form),
+                _buildContinueBar(canContinue),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMap() {
+    return Stack(
+      children: [
+        GoogleMap(
+          initialCameraPosition: CameraPosition(
+            target: _center,
+            zoom: widget.initialCenter != null ? 16 : _worldZoom,
+          ),
+          onMapCreated: (controller) => _mapController = controller,
+          onCameraMove: (position) => _center = position.target,
+          onCameraIdle: () => _resolveAddress(_center),
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          zoomControlsEnabled: false,
+        ),
+        // Fixed center pin — the map moves underneath it.
+        IgnorePointer(
+          child: Center(
+            child: Transform.translate(
+              offset: const Offset(0, -20),
+              child: const Icon(
+                Icons.location_on_rounded,
+                size: 44,
+                color: AppColors.primaryDark,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          left: AppSpacing.md,
+          right: AppSpacing.md,
+          top: AppSpacing.md,
+          child: _SearchBar(
+            controller: _searchController,
+            suggestions: _suggestions,
+            autofocus: widget.autoFocusSearch,
+            onChanged: _onSearchChanged,
+            onSuggestionSelected: _onSuggestionSelected,
+          ),
+        ),
+        Positioned(
+          right: AppSpacing.md,
+          bottom: AppSpacing.md,
+          child: FloatingActionButton.small(
+            heroTag: 'use-current-location-${widget.stepIndex}',
+            backgroundColor: AppColors.background,
+            foregroundColor: AppColors.textPrimary,
+            onPressed: _isLocatingDevice ? null : _useCurrentLocation,
+            child: _isLocatingDevice
+                ? const AppLoader(size: 18, color: AppColors.textPrimary)
+                : const Icon(Icons.my_location_rounded),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildForm(bool isOutsideDeliveryArea) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              widget.addressLabel,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            InkWell(
+              onTap: _showSavedAddresses,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.bookmark_outline_rounded, size: 15, color: AppColors.accent),
+                    const SizedBox(width: 4),
+                    Text(
+                      'booking.choose_saved_address'.tr(),
+                      style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.accent),
+                    ),
+                  ],
                 ),
               ),
             ),
           ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        _AddressPreview(address: _address, isResolving: _isResolvingAddress),
+        if (isOutsideDeliveryArea) ...[
+          const SizedBox(height: AppSpacing.sm),
+          const _OutsideDeliveryAreaBanner(),
+        ],
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            for (final option in _addressLabels) ...[
+              Expanded(
+                child: _AddressLabelChip(
+                  label: option.labelKey.tr(),
+                  icon: option.icon,
+                  selected: _selectedLabel == option.value,
+                  onTap: () => setState(() => _selectedLabel = option.value),
+                ),
+              ),
+              if (option != _addressLabels.last) const SizedBox(width: AppSpacing.sm),
+            ],
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        TextField(
+          controller: _houseNumberController,
+        focusNode: _houseNumberFocus,
+          decoration: InputDecoration(
+            labelText: 'booking.house_number_label'.tr(),
+          ),
+        ),
+        if (widget.showLandmarkField) ...[
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: _landmarkController,
+          focusNode: _landmarkFocus,
+            decoration: InputDecoration(labelText: 'booking.landmark_label'.tr()),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.sm),
+        TextField(
+          controller: _remarkController,
+        focusNode: _remarkFocus,
+          decoration: InputDecoration(labelText: 'booking.remark_label'.tr()),
+        ),
+        if (widget.showRecipientFields) ...[
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          'booking.recipient_title'.tr(),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'booking.recipient_hint'.tr(),
+          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        TextField(
+          controller: _receiverNameController,
+          focusNode: _receiverNameFocus,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          decoration: InputDecoration(labelText: 'booking.recipient_name_label'.tr()),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        TextField(
+          controller: _receiverPhoneController,
+          focusNode: _receiverPhoneFocus,
+          keyboardType: TextInputType.phone,
+          autofillHints: const [AutofillHints.telephoneNumber],
+          inputFormatters: [TrPhoneInputFormatter()],
+          onChanged: (_) => setState(() {}),
+          decoration: InputDecoration(
+            labelText: 'booking.recipient_phone_label'.tr(),
+            hintText: '5XX XXX XX XX',
+            prefixText: '+90 ',
+            errorText: _receiverPhoneInvalid ? 'booking.recipient_phone_error'.tr() : null,
+          ),
+        ),
+      ],
+      if (widget.showScheduleOption) ...[
+          const SizedBox(height: AppSpacing.md),
+          _ScheduleSection(
+            isScheduled: _isScheduled,
+            scheduledDate: _scheduledDate,
+            scheduledTime: _scheduledTime,
+            onModeChanged: (scheduled) => setState(() => _isScheduled = scheduled),
+            onPickDate: _pickScheduleDate,
+            onPickTime: _pickScheduleTime,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildContinueBar(bool canContinue) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.sm,
+        ),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: canContinue
+                ? () {
+                    DateTime? scheduledAt;
+                    if (widget.showScheduleOption && _isScheduled) {
+                      final date = _scheduledDate!;
+                      final time = _scheduledTime!;
+                      scheduledAt = DateTime(date.year, date.month, date.day, time.hour, time.minute);
+                    }
+                    widget.onContinue(
+                      BookingAddress(
+                        latLng: _center,
+                        formattedAddress: _address,
+                        houseNumber: _houseNumberController.text,
+                        landmark: _landmarkController.text,
+                        remark: _remarkController.text,
+                        label: _selectedLabel,
+                        contactName: widget.showRecipientFields ? _receiverNameController.text.trim() : '',
+                        contactPhone: widget.showRecipientFields ? TrPhone.toE164(_receiverPhoneController.text) : null,
+                      ),
+                      scheduledAt,
+                    );
+                  }
+                : null,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('common.continue'.tr()),
+                const SizedBox(width: 8),
+                const Icon(Icons.arrow_forward_rounded, size: 18),
+              ],
+            ),
+          ),
         ),
       ),
     );

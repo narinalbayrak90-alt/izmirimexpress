@@ -75,7 +75,7 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
       _loadError = null;
     });
     try {
-      final result = await ref.read(orderServiceProvider).getOrders(page: 1, filter: _filter);
+      final result = await _fetchFirstPage();
       if (!mounted) return;
       setState(() {
         _orders
@@ -85,12 +85,25 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
         _hasMore = result.hasMore;
         _isLoading = false;
       });
-    } on ApiException catch (e) {
+    } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _loadError = e.message;
+        _loadError = e is ApiException ? e.message : 'common.unexpected_error'.tr();
       });
+    }
+  }
+
+  /// The first load right after the site opens can hit a server that's
+  /// still waking up; one quiet retry keeps that from flashing an error
+  /// screen at the customer. A second failure is shown as usual.
+  Future<OrderListPage> _fetchFirstPage() async {
+    final service = ref.read(orderServiceProvider);
+    try {
+      return await service.getOrders(page: 1, filter: _filter);
+    } catch (_) {
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      return service.getOrders(page: 1, filter: _filter);
     }
   }
 
@@ -312,7 +325,7 @@ class _OrderCard extends StatelessWidget {
               Text(
                 'orders.distance_and_method'.tr(namedArgs: {
                   'distance': order.distanceKm.toStringAsFixed(1),
-                  'method': order.paymentMethod.toUpperCase(),
+                  'method': paymentMethodLabel(order.paymentMethod),
                 }),
                 style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),

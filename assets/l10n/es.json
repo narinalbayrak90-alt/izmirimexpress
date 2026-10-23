@@ -153,7 +153,13 @@
     "payment_failed": "El pago falló. Inténtalo de nuevo.",
     "order_payment": "Pago del pedido",
     "web_checkout_prompt": "La página de pago se abrió en una nueva pestaña. Cuando hayas completado el pago, toca \"Ya pagué\" para realizar tu pedido.",
-    "web_checkout_done": "Ya pagué"
+    "web_checkout_done": "Ya pagué",
+    "recipient_title": "Destinatario",
+    "recipient_hint": "Opcional. El repartidor llamará a esta persona en la entrega.",
+    "recipient_name_label": "Nombre del destinatario",
+    "recipient_phone_label": "Teléfono del destinatario",
+    "recipient_phone_error": "Introduce un número de teléfono válido (p. ej. 532 123 45 67)",
+    "recipient_line": "Destinatario: {recipient}"
   },
   "vehicle": {
     "bike": "Moto",

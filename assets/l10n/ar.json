@@ -153,7 +153,13 @@
     "payment_failed": "فشلت عملية الدفع. يرجى المحاولة مرة أخرى.",
     "order_payment": "دفع الطلب",
     "web_checkout_prompt": "تم فتح صفحة الدفع في علامة تبويب جديدة. بعد إتمام الدفع، اضغط على \"تم الدفع\" لتأكيد طلبك.",
-    "web_checkout_done": "تم الدفع"
+    "web_checkout_done": "تم الدفع",
+    "recipient_title": "المستلم",
+    "recipient_hint": "اختياري. سيتصل المندوب بهذا الشخص عند التسليم.",
+    "recipient_name_label": "اسم المستلم",
+    "recipient_phone_label": "هاتف المستلم",
+    "recipient_phone_error": "أدخل رقم هاتف صالحًا (مثال 532 123 45 67)",
+    "recipient_line": "المستلم: {recipient}"
   },
   "vehicle": {
     "bike": "دراجة نارية",
