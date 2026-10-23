@@ -25,4 +25,7 @@ class AppColors {
   static const Color errorBackground = Color(0xFFFBE9E7);
   static const Color purple = Color(0xFF8B5CF6);
   static const Color purpleBackground = Color(0xFFF1EBFD);
+
+  /// Around the phone-width frame on wide (desktop web) screens.
+  static const Color frameBackdrop = Color(0xFFEEF0F4);
 }

@@ -1,4 +1,7 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../theme/app_colors.dart';
@@ -115,6 +118,8 @@ Future<bool> openGatewayCheckout(
   required String authorizationUrl,
   required String title,
 }) async {
+  if (kIsWeb) return _openWebCheckout(context, authorizationUrl: authorizationUrl, title: title);
+
   final result = await Navigator.of(context).push<bool>(
     MaterialPageRoute(
       fullscreenDialog: true,
@@ -122,4 +127,38 @@ Future<bool> openGatewayCheckout(
     ),
   );
   return result ?? false;
+}
+
+/// Web build: there's no in-app WebView, so the hosted checkout opens in a
+/// new browser tab and the customer confirms here once they've paid. A
+/// "completed" answer is safe to trust as far as the app is concerned —
+/// the backend still verifies the charge with the gateway before placing
+/// the order, exactly as it does for the WebView flow.
+Future<bool> _openWebCheckout(
+  BuildContext context, {
+  required String authorizationUrl,
+  required String title,
+}) async {
+  final opened = await launchUrl(Uri.parse(authorizationUrl), webOnlyWindowName: '_blank');
+  if (!opened || !context.mounted) return false;
+
+  final completed = await showDialog<bool>(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) => AlertDialog(
+      title: Text(title),
+      content: Text('booking.web_checkout_prompt'.tr()),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text('common.cancel'.tr()),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text('booking.web_checkout_done'.tr()),
+        ),
+      ],
+    ),
+  );
+  return completed ?? false;
 }

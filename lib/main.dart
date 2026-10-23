@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,12 @@ import 'providers/app_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  if (kIsWeb) {
+    // See Env: the web build takes its config from the page's own domain.
+    dotenv.loadFromString(isOptional: true);
+  } else {
+    await dotenv.load(fileName: '.env');
+  }
   await EasyLocalization.ensureInitialized();
   final sharedPreferences = await SharedPreferences.getInstance();
 
@@ -19,9 +25,10 @@ Future<void> main() async {
         sharedPreferencesProvider.overrideWithValue(sharedPreferences),
       ],
       child: EasyLocalization(
-        supportedLocales: const [Locale('en'), Locale('es'), Locale('ar')],
+        supportedLocales: const [Locale('tr'), Locale('en'), Locale('es'), Locale('ar')],
         path: 'assets/l10n',
-        fallbackLocale: const Locale('en'),
+        startLocale: const Locale('tr'),
+        fallbackLocale: const Locale('tr'),
         child: const PickupDropApp(),
       ),
     ),

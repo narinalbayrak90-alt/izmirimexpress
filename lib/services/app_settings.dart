@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 /// Admin-configured delivery geo-fence (App Setting > Delivery Area) — a
 /// pickup must fall within [radiusKm] of ([lat], [lng]) to be accepted.
 /// Mirrors the same check `OrderController::store` makes server-side, so
@@ -75,16 +77,24 @@ class AppSettings {
   /// the REST API key stays server-only.
   final String? onesignalAppId;
 
-  static const _fallbackAppName = 'Pickup & Drop';
-  static const _fallbackCountryCodes = ['91', '1', '44', '61', '971', '966', '65', '49', '33', '86'];
+  static const _fallbackAppName = 'İzmirim Express';
+  static const _fallbackCountryCodes = ['90', '91', '1', '44', '61', '971', '966', '65', '49', '33', '86'];
   static const _fallbackPaymentMethods = ['cod'];
+
+  /// Gateways whose Flutter SDKs only run natively (Stripe's payment sheet,
+  /// Razorpay Checkout) — hidden in the web build, where Paystack and
+  /// Flutterwave still work through their hosted checkout pages.
+  static const _nativeOnlyPaymentMethods = ['stripe', 'razorpay'];
   static const _fallbackMaxDeliveryDistanceKm = 25.0;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
     final codes = (json['signup_verification_country_codes'] as List<dynamic>?)
         ?.map((e) => e.toString())
         .toList();
-    final methods = (json['payment_methods'] as List<dynamic>?)?.map((e) => e.toString()).toList();
+    final methods = (json['payment_methods'] as List<dynamic>?)
+        ?.map((e) => e.toString())
+        .where((method) => !kIsWeb || !_nativeOnlyPaymentMethods.contains(method))
+        .toList();
     final deliveryAreaJson = json['delivery_area'] as Map<String, dynamic>?;
 
     return AppSettings(
@@ -95,7 +105,7 @@ class AppSettings {
       currencySign: json['currency_sign'] as String? ?? r'$',
       currencyCode: json['currency_code'] as String? ?? 'USD',
       currencyPosition: json['currency_position'] as String? ?? 'left',
-      defaultLanguage: json['default_language'] as String? ?? 'en',
+      defaultLanguage: json['default_language'] as String? ?? 'tr',
       signupVerificationType: json['signup_verification_type'] as String? ?? 'none',
       countryCodes: (codes == null || codes.isEmpty) ? _fallbackCountryCodes : codes,
       paymentMethods: (methods == null || methods.isEmpty) ? _fallbackPaymentMethods : methods,
@@ -139,7 +149,7 @@ class AppSettings {
         currencySign = r'$',
         currencyCode = 'USD',
         currencyPosition = 'left',
-        defaultLanguage = 'en',
+        defaultLanguage = 'tr',
         signupVerificationType = 'none',
         countryCodes = _fallbackCountryCodes,
         paymentMethods = _fallbackPaymentMethods,

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../config/env.dart';
@@ -11,11 +12,15 @@ import '../config/env.dart';
 /// called once the app's settings are fetched (see `appSettingsProvider`),
 /// not from `main()` — [_isInitialized] makes repeat calls (e.g. on every
 /// settings refresh) harmless.
+///
+/// The OneSignal Flutter SDK has no web implementation, so every method is
+/// a no-op in the web build — notifications still show up in the app's own
+/// Notifications screen, which reads them from the backend.
 class OneSignalService {
   bool _isInitialized = false;
 
   void initialize(String appId) {
-    if (_isInitialized || appId.isEmpty) return;
+    if (kIsWeb || _isInitialized || appId.isEmpty) return;
 
     OneSignal.Debug.setLogLevel(Env.isProduction ? OSLogLevel.none : OSLogLevel.verbose);
     OneSignal.initialize(appId);
@@ -25,7 +30,8 @@ class OneSignalService {
   /// Requests OS-level notification permission — a no-op if already
   /// granted/denied. Needed for push to actually arrive on iOS and on
   /// Android 13+ (POST_NOTIFICATIONS is a runtime permission there).
-  Future<bool> requestPermission() {
+  Future<bool> requestPermission() async {
+    if (kIsWeb) return false;
     return OneSignal.Notifications.requestPermission(true);
   }
 
@@ -33,6 +39,7 @@ class OneSignalService {
   /// Module 14) so the backend can target personalised notifications —
   /// e.g. "send to users where user_id = 123" via OneSignal's REST API.
   void tagUserId(int customerId) {
+    if (kIsWeb) return;
     OneSignal.User.addTagWithKey('user_id', customerId.toString());
   }
 
@@ -40,6 +47,7 @@ class OneSignalService {
   /// shared/reused device doesn't keep receiving the previous customer's
   /// personalised notifications after they've signed out.
   void clearUserTag() {
+    if (kIsWeb) return;
     OneSignal.User.removeTag('user_id');
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 
 import 'api_client.dart';
 
@@ -149,7 +150,7 @@ class AuthService {
   /// Edits the logged-in customer's own profile (project.txt Module 14 —
   /// Personal Information): the same fields collected at signup, plus an
   /// optional password change ([currentPassword]/[newPassword], both or
-  /// neither) and an optional new [photoPath] to upload.
+  /// neither) and an optional new [photo] to upload.
   Future<CustomerProfile> updateProfile({
     required String name,
     required String email,
@@ -157,7 +158,7 @@ class AuthService {
     required String phone,
     String? currentPassword,
     String? newPassword,
-    String? photoPath,
+    XFile? photo,
   }) async {
     final data = FormData.fromMap({
       'name': name,
@@ -166,7 +167,7 @@ class AuthService {
       'phone': phone,
       if (currentPassword != null && currentPassword.isNotEmpty) 'current_password': currentPassword,
       if (newPassword != null && newPassword.isNotEmpty) 'new_password': newPassword,
-      if (photoPath != null) 'photo': await MultipartFile.fromFile(photoPath),
+      if (photo != null) 'photo': MultipartFile.fromBytes(await photo.readAsBytes(), filename: photo.name),
     });
     final result = await _apiClient.post('/me/update', data: data);
     return CustomerProfile.fromJson(result as Map<String, dynamic>);

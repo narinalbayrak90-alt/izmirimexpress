@@ -57,3 +57,28 @@ OneSignal (push notifications), image_picker.
 Nearly everything user-facing — categories, welcome screen content, Privacy
 Policy/Terms URLs, payment methods, support contact details — is configured
 from the Admin Panel, not hardcoded in this app.
+
+## Web sürümü (izmirimexpress.com)
+
+Aynı kod web için de derlenir ve domain kökünde yayınlanır
+(`izmirimexpress.com/` → Sanayi-Express reposundaki `app/` klasörü; API
+`izmirimexpress.com/admin/api`).
+
+```
+tool/build_web.sh ../sanayi-express
+```
+
+Web'e özel farklar:
+
+- API adresi `.env` yerine sayfanın kendi domaininden alınır
+  (`/admin/api`); gerekirse `--dart-define=API_BASE_URL=...` ile değişir.
+- Google adres arama/rota istekleri backend'in `/maps` aracısından geçer,
+  harita JS'i `/admin/api/maps/js` üzerinden panelde girilen anahtarla yüklenir.
+- Stripe ve Razorpay web'de gizlenir; Paystack/Flutterwave yeni sekmede açılır.
+- OneSignal push bildirimleri web'de devre dışıdır (uygulama içi bildirimler çalışır).
+- Geniş ekranda uygulama telefon genişliğinde (480px) ortalanır.
+
+Not: Android `res/` ikonları ve iOS klasörü bu repoya alınmadı; APK
+derlemeden önce `flutter create --platforms=android,ios .` ve
+`dart run flutter_launcher_icons` / `dart run flutter_native_splash:create`
+ile yeniden üretilebilir.

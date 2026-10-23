@@ -11,7 +11,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/app_loader.dart';
 
-const _languages = {'en': 'English', 'es': 'Español', 'ar': 'العربية'};
+const _languages = {'tr': 'Türkçe', 'en': 'English', 'es': 'Español', 'ar': 'العربية'};
 
 /// Account screen (project.txt Module 14) — profile summary with real
 /// stats (wallet balance, order counts, verification status), a Quick

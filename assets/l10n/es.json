@@ -13,7 +13,10 @@
     "coming_soon": "{feature} estará disponible próximamente",
     "page_not_found": "Página no encontrada",
     "select_country_code": "Selecciona el código de país",
-    "unexpected_error": "Ocurrió un error inesperado. Inténtalo de nuevo."
+    "unexpected_error": "Ocurrió un error inesperado. Inténtalo de nuevo.",
+    "request_timeout": "La solicitud ha caducado. Inténtalo de nuevo.",
+    "no_internet": "Sin conexión a internet. Revisa tu red.",
+    "request_cancelled": "La solicitud fue cancelada."
   },
   "auth": {
     "email_label": "Correo electrónico",
@@ -148,7 +151,9 @@
     "confirm_and_pay": "Confirmar y pagar · {total}",
     "card_unavailable": "Los pagos con tarjeta no están disponibles ahora. Intenta con otro método.",
     "payment_failed": "El pago falló. Inténtalo de nuevo.",
-    "order_payment": "Pago del pedido"
+    "order_payment": "Pago del pedido",
+    "web_checkout_prompt": "La página de pago se abrió en una nueva pestaña. Cuando hayas completado el pago, toca \"Ya pagué\" para realizar tu pedido.",
+    "web_checkout_done": "Ya pagué"
   },
   "vehicle": {
     "bike": "Moto",
@@ -339,6 +344,7 @@
     "default_description": "Reserva una recogida en segundos y rastrea tu paquete en vivo, desde tu puerta hasta la suya."
   },
   "country": {
+    "turkey": "Turquía",
     "india": "India",
     "us_canada": "Estados Unidos / Canadá",
     "uk": "Reino Unido",

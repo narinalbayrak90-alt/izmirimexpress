@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
@@ -110,10 +111,14 @@ final notificationServiceProvider = Provider<NotificationService>((ref) {
 
 /// Separate from [dioProvider] — these calls go straight to Google's APIs,
 /// not our backend, so they must not carry the backend auth interceptor.
+///
+/// Browsers block direct calls to Google's web services (no CORS), so the
+/// web build goes through the backend's `/maps` proxy instead, which mirrors
+/// Google's paths and responses and adds the API key server-side.
 final googlePlacesServiceProvider = Provider<GooglePlacesService>((ref) {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://maps.googleapis.com/maps/api',
+      baseUrl: kIsWeb ? '${Env.apiBaseUrl}/maps' : 'https://maps.googleapis.com/maps/api',
       connectTimeout: const Duration(seconds: 15),
       receiveTimeout: const Duration(seconds: 15),
     ),

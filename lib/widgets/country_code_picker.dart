@@ -9,6 +9,7 @@ import '../theme/app_spacing.dart';
 /// the picker sheet. A code the admin adds that isn't in this map still
 /// works, it just shows as "+<code>" with no country name.
 const Map<String, String> _countryNameKeys = {
+  '90': 'country.turkey',
   '91': 'country.india',
   '1': 'country.us_canada',
   '44': 'country.uk',

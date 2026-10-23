@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -42,7 +42,8 @@ class _PersonalInformationScreenState extends ConsumerState<PersonalInformationS
   final _confirmPasswordController = TextEditingController();
 
   late String _countryCode;
-  File? _pickedPhoto;
+  XFile? _pickedPhoto;
+  Uint8List? _pickedPhotoBytes;
   bool _changePassword = false;
   bool _obscureCurrent = true;
   bool _obscureNew = true;
@@ -98,7 +99,14 @@ class _PersonalInformationScreenState extends ConsumerState<PersonalInformationS
 
     final picked = await ImagePicker().pickImage(source: source, maxWidth: 1024, imageQuality: 85);
     if (picked == null) return;
-    setState(() => _pickedPhoto = File(picked.path));
+    // Bytes rather than a dart:io File so the preview and upload also work
+    // in the web build, where picked images have no real file path.
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    setState(() {
+      _pickedPhoto = picked;
+      _pickedPhotoBytes = bytes;
+    });
   }
 
   void _pickCountryCode(List<String> countryCodes) {
@@ -122,7 +130,7 @@ class _PersonalInformationScreenState extends ConsumerState<PersonalInformationS
             phone: _phoneController.text.trim(),
             currentPassword: _changePassword ? _currentPasswordController.text : null,
             newPassword: _changePassword ? _newPasswordController.text : null,
-            photoPath: _pickedPhoto?.path,
+            photo: _pickedPhoto,
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -152,7 +160,7 @@ class _PersonalInformationScreenState extends ConsumerState<PersonalInformationS
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(child: _AvatarPicker(profile: widget.initialProfile, pickedPhoto: _pickedPhoto, onTap: _pickPhoto)),
+                Center(child: _AvatarPicker(profile: widget.initialProfile, pickedPhoto: _pickedPhotoBytes, onTap: _pickPhoto)),
                 const SizedBox(height: AppSpacing.xl),
                 _FieldLabel('auth.signup.full_name_label'.tr()),
                 const SizedBox(height: 8),
@@ -304,7 +312,7 @@ class _AvatarPicker extends StatelessWidget {
   const _AvatarPicker({required this.profile, required this.pickedPhoto, required this.onTap});
 
   final CustomerProfile profile;
-  final File? pickedPhoto;
+  final Uint8List? pickedPhoto;
   final VoidCallback onTap;
 
   @override
@@ -320,7 +328,7 @@ class _AvatarPicker extends StatelessWidget {
             radius: 48,
             backgroundColor: AppColors.primary.withValues(alpha: 0.2),
             backgroundImage: pickedPhoto != null
-                ? FileImage(pickedPhoto!)
+                ? MemoryImage(pickedPhoto!)
                 : hasNetworkPhoto
                     ? NetworkImage(profile.photoUrl!) as ImageProvider
                     : null,
