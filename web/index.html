@@ -120,7 +120,11 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/app/sw.js', { scope: '/' }).catch(function () {});
+          // Whole site when the server allows it (Service-Worker-Allowed),
+          // otherwise just /app/.
+          navigator.serviceWorker.register('/app/sw.js', { scope: '/' }).catch(function () {
+            return navigator.serviceWorker.register('/app/sw.js');
+          }).catch(function () {});
         });
       }
     })();
