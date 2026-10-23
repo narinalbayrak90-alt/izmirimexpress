@@ -120,6 +120,9 @@ class GooglePlacesService {
     } while (chunk >= 0x20);
 
     onConsumed(index);
-    return (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+    // `-(x) - 1` rather than `~x`: on the web (dart2js) `~` returns an
+    // unsigned 32-bit value, which turned every negative step into a huge
+    // positive one and sent the route line off the map.
+    return (result & 1) != 0 ? -(result >> 1) - 1 : (result >> 1);
   }
 }
