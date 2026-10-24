@@ -9,9 +9,10 @@ import '../../services/rider_order_service.dart';
 /// Account tab's "My Earning"/"Order History" menu items, the Earning
 /// tab's own app-bar Withdraw button) doesn't hardcode a magic number.
 const homeTabIndex = 0;
-const historyTabIndex = 1;
-const earningTabIndex = 2;
-const accountTabIndex = 3;
+const mapTabIndex = 1;
+const historyTabIndex = 2;
+const earningTabIndex = 3;
+const accountTabIndex = 4;
 
 /// Which bottom-nav tab is currently showing. A plain [StateProvider]
 /// (not local [State]) so any descendant — not just [HomeScreen] itself —

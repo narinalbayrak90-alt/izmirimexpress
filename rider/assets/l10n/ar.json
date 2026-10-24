@@ -20,6 +20,7 @@
   },
   "nav": {
     "home": "الرئيسية",
+    "map": "الخريطة",
     "history": "السجل",
     "earning": "الأرباح",
     "account": "الحساب"
@@ -274,5 +275,18 @@
   "location": {
     "notification_title": "You're online",
     "notification_text": "Sharing your location while you accept and deliver orders."
+  },
+  "map": {
+    "title": "الخريطة",
+    "legend_pickup": "الاستلام",
+    "legend_dropoff": "التسليم",
+    "legend_new": "طلب جديد",
+    "refresh": "تحديث",
+    "pickup_title": "#{id} · الاستلام",
+    "dropoff_title": "#{id} · التسليم",
+    "new_order_title": "طلب جديد #{id} · {earning}",
+    "tap_for_detail": "اضغط للتفاصيل",
+    "empty": "لا توجد طلبات لعرضها على الخريطة الآن.",
+    "empty_offline": "ليس لديك طلبات. اتصل بالإنترنت لرؤية الطلبات الجديدة."
   }
 }

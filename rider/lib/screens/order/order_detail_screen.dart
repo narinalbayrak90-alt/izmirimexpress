@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,6 +15,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../../widgets/order_map_pins.dart';
 import '../../widgets/primary_button.dart';
 import '../home/home_provider.dart';
 import 'order_detail_provider.dart';
@@ -202,6 +204,8 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.lg),
               children: [
+                _OrderMap(order: order),
+                const SizedBox(height: AppSpacing.lg),
                 _EarningCard(order: order),
                 if (order.codAmountToCollect != null) ...[
                   const SizedBox(height: AppSpacing.sm),
@@ -602,5 +606,93 @@ class _FieldLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary));
+  }
+}
+
+/// Small map at the top of the order: pickup (orange) and drop-off (green)
+/// with a line between them and the rider's own blue dot. Whichever stop
+/// is next is the one shown first in its bubble. Not draggable, so it
+/// doesn't fight the page's own scrolling; "Yol tarifi" on each address
+/// card opens real navigation.
+class _OrderMap extends StatefulWidget {
+  const _OrderMap({required this.order});
+
+  final RiderOrderDetail order;
+
+  @override
+  State<_OrderMap> createState() => _OrderMapState();
+}
+
+class _OrderMapState extends State<_OrderMap> {
+  GoogleMapController? _controller;
+
+  LatLng get _pickup => LatLng(widget.order.pickup.lat, widget.order.pickup.lng);
+  LatLng get _dropoff => LatLng(widget.order.dropoff.lat, widget.order.dropoff.lng);
+
+  bool get _pickedUp => const {'picked_up', 'in_transit', 'delivered'}.contains(widget.order.status);
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  void _fit() {
+    final controller = _controller;
+    if (controller == null) return;
+    controller.moveCamera(CameraUpdate.newLatLngBounds(OrderMapPins.bounds([_pickup, _dropoff]), 40));
+    // Open the bubble of the stop the rider is heading to now.
+    controller.showMarkerInfoWindow(MarkerId(_pickedUp ? 'dropoff' : 'pickup'));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        height: 220,
+        child: GoogleMap(
+          initialCameraPosition: CameraPosition(target: _pickup, zoom: 13),
+          markers: {
+            Marker(
+              markerId: const MarkerId('pickup'),
+              position: _pickup,
+              icon: OrderMapPins.pickup,
+              alpha: _pickedUp ? 0.5 : 1,
+              infoWindow: InfoWindow(title: 'order_detail.pickup_label'.tr(), snippet: widget.order.pickup.formattedAddress),
+            ),
+            Marker(
+              markerId: const MarkerId('dropoff'),
+              position: _dropoff,
+              icon: OrderMapPins.dropoff,
+              infoWindow: InfoWindow(title: 'order_detail.dropoff_label'.tr(), snippet: widget.order.dropoff.formattedAddress),
+            ),
+          },
+          polylines: {
+            Polyline(
+              polylineId: const PolylineId('route'),
+              points: [_pickup, _dropoff],
+              color: AppColors.primaryDark,
+              width: 4,
+              patterns: [PatternItem.dash(20), PatternItem.gap(12)],
+            ),
+          },
+          myLocationEnabled: true,
+          myLocationButtonEnabled: false,
+          mapToolbarEnabled: false,
+          zoomControlsEnabled: false,
+          scrollGesturesEnabled: false,
+          zoomGesturesEnabled: false,
+          rotateGesturesEnabled: false,
+          tiltGesturesEnabled: false,
+          onMapCreated: (controller) {
+            _controller = controller;
+            // The first layout pass can finish after onMapCreated; fitting
+            // a frame later makes sure the map knows its own size.
+            WidgetsBinding.instance.addPostFrameCallback((_) => _fit());
+          },
+        ),
+      ),
+    );
   }
 }

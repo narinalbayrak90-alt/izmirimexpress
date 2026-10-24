@@ -20,6 +20,7 @@
   },
   "nav": {
     "home": "Inicio",
+    "map": "Mapa",
     "history": "Historial",
     "earning": "Ganancias",
     "account": "Cuenta"
@@ -274,5 +275,18 @@
   "location": {
     "notification_title": "You're online",
     "notification_text": "Sharing your location while you accept and deliver orders."
+  },
+  "map": {
+    "title": "Mapa",
+    "legend_pickup": "Recogida",
+    "legend_dropoff": "Entrega",
+    "legend_new": "Pedido nuevo",
+    "refresh": "Actualizar",
+    "pickup_title": "#{id} · Recogida",
+    "dropoff_title": "#{id} · Entrega",
+    "new_order_title": "Pedido nuevo #{id} · {earning}",
+    "tap_for_detail": "Toca para ver detalles",
+    "empty": "No hay pedidos para mostrar en el mapa.",
+    "empty_offline": "No tienes pedidos. Conéctate para ver pedidos nuevos."
   }
 }

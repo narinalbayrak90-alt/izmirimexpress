@@ -18,9 +18,10 @@ import '../earning/earning_provider.dart';
 import '../earning/earning_screen.dart';
 import '../earning/withdraw_dialog.dart';
 import '../history/history_screen.dart';
+import '../map/orders_map_screen.dart';
 import 'home_provider.dart';
 
-/// The app's bottom-nav shell: Home / History / Earning / Account, all
+/// The app's bottom-nav shell: Home / Map / History / Earning / Account, all
 /// kept alive together in an [IndexedStack] (not separate routes) so
 /// switching tabs never re-fetches or loses scroll position — this app's
 /// screens are simple enough that a full [StatefulShellRoute] would just
@@ -35,7 +36,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  static const _titleKeys = ['app_name', 'history.title', 'earning.title', 'account.title'];
+  static const _titleKeys = ['app_name', 'map.title', 'history.title', 'earning.title', 'account.title'];
 
   /// Fetches the rider's up-to-the-moment balance (not whatever
   /// [withdrawalSummaryProvider] last cached — the Earning tab may have
@@ -106,6 +107,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           index: tabIndex,
           children: const [
             _HomeTab(),
+            OrdersMapScreen(),
             HistoryScreen(),
             EarningScreen(),
             AccountScreen(),
@@ -117,6 +119,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         onDestinationSelected: (index) => ref.read(homeTabIndexProvider.notifier).state = index,
         destinations: [
           NavigationDestination(icon: const Icon(Icons.home_outlined), selectedIcon: const Icon(Icons.home_rounded), label: 'nav.home'.tr()),
+          NavigationDestination(icon: const Icon(Icons.map_outlined), selectedIcon: const Icon(Icons.map_rounded), label: 'nav.map'.tr()),
           NavigationDestination(icon: const Icon(Icons.history_rounded), selectedIcon: const Icon(Icons.history_rounded), label: 'nav.history'.tr()),
           NavigationDestination(icon: const Icon(Icons.payments_outlined), selectedIcon: const Icon(Icons.payments_rounded), label: 'nav.earning'.tr()),
           NavigationDestination(icon: const Icon(Icons.person_outline_rounded), selectedIcon: const Icon(Icons.person_rounded), label: 'nav.account'.tr()),

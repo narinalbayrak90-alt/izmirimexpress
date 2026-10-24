@@ -20,6 +20,7 @@
   },
   "nav": {
     "home": "Ana Sayfa",
+    "map": "Harita",
     "history": "Geçmiş",
     "earning": "Kazanç",
     "account": "Hesabım"
@@ -274,5 +275,18 @@
   "location": {
     "notification_title": "Çevrimiçisin",
     "notification_text": "Sipariş alırken ve teslim ederken konumun paylaşılıyor."
+  },
+  "map": {
+    "title": "Harita",
+    "legend_pickup": "Alış",
+    "legend_dropoff": "Teslim",
+    "legend_new": "Yeni sipariş",
+    "refresh": "Yenile",
+    "pickup_title": "#{id} · Alış",
+    "dropoff_title": "#{id} · Teslim",
+    "new_order_title": "Yeni sipariş #{id} · {earning}",
+    "tap_for_detail": "Detay için dokunun",
+    "empty": "Şu an haritada gösterilecek sipariş yok.",
+    "empty_offline": "Üzerinizde sipariş yok. Yeni siparişleri görmek için çevrimiçi olun."
   }
 }

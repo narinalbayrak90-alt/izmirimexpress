@@ -20,6 +20,7 @@
   },
   "nav": {
     "home": "Home",
+    "map": "Map",
     "history": "History",
     "earning": "Earning",
     "account": "Account"
@@ -274,5 +275,18 @@
   "location": {
     "notification_title": "You're online",
     "notification_text": "Sharing your location while you accept and deliver orders."
+  },
+  "map": {
+    "title": "Map",
+    "legend_pickup": "Pickup",
+    "legend_dropoff": "Drop-off",
+    "legend_new": "New order",
+    "refresh": "Refresh",
+    "pickup_title": "#{id} · Pickup",
+    "dropoff_title": "#{id} · Drop-off",
+    "new_order_title": "New order #{id} · {earning}",
+    "tap_for_detail": "Tap for details",
+    "empty": "No orders to show on the map right now.",
+    "empty_offline": "You have no orders. Go online to see new orders."
   }
 }

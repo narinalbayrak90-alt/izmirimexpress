@@ -26,6 +26,8 @@ class RiderOrderSummary {
     this.categoryIconUrl,
     required this.pickupAddress,
     required this.dropoffAddress,
+    this.pickupLocation,
+    this.dropoffLocation,
   });
 
   final int id;
@@ -40,6 +42,10 @@ class RiderOrderSummary {
   final String? categoryIconUrl;
   final String pickupAddress;
   final String dropoffAddress;
+
+  /// Map pin positions — null from a backend that predates them.
+  final RiderLatLng? pickupLocation;
+  final RiderLatLng? dropoffLocation;
 
   factory RiderOrderSummary.fromJson(Map<String, dynamic> json) {
     final category = json['category'] as Map<String, dynamic>;
@@ -57,7 +63,24 @@ class RiderOrderSummary {
       categoryIconUrl: category['icon'] as String?,
       pickupAddress: json['pickup_address'] as String? ?? '',
       dropoffAddress: json['dropoff_address'] as String? ?? '',
+      pickupLocation: RiderLatLng.tryParse(json['pickup_location']),
+      dropoffLocation: RiderLatLng.tryParse(json['dropoff_location']),
     );
+  }
+}
+
+/// A plain coordinate pair from the API (`{lat, lng}`).
+class RiderLatLng {
+  const RiderLatLng(this.lat, this.lng);
+
+  final double lat;
+  final double lng;
+
+  static RiderLatLng? tryParse(Object? json) {
+    if (json is! Map) return null;
+    final lat = json['lat'], lng = json['lng'];
+    if (lat is! num || lng is! num) return null;
+    return RiderLatLng(lat.toDouble(), lng.toDouble());
   }
 }
 

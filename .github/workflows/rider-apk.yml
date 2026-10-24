@@ -45,8 +45,12 @@ jobs:
           RIDER_KEYSTORE_BASE64: ${{ secrets.RIDER_KEYSTORE_BASE64 }}
           RIDER_KEYSTORE_PASSWORD: ${{ secrets.RIDER_KEYSTORE_PASSWORD }}
           RIDER_KEY_ALIAS: ${{ secrets.RIDER_KEY_ALIAS }}
+          RIDER_MAPS_KEY: ${{ secrets.RIDER_MAPS_KEY }}
         run: |
-          printf 'API_BASE_URL=https://izmirimexpress.com/admin/api\nGOOGLE_MAPS_API_KEY=\nAPP_ENV=production\n' > .env
+          # Google Maps key for the map screens, from the RIDER_MAPS_KEY repo
+          # secret; without it the app works but its maps stay blank.
+          [ -n "$RIDER_MAPS_KEY" ] || echo "::warning::RIDER_MAPS_KEY secret is not set; maps will be blank"
+          printf 'API_BASE_URL=https://izmirimexpress.com/admin/api\nGOOGLE_MAPS_API_KEY=%s\nAPP_ENV=production\n' "$RIDER_MAPS_KEY" > .env
           # Real key from repo secrets when set; otherwise the committed
           # test key, which only keeps test builds installable over each other.
           if [ -n "$RIDER_KEYSTORE_BASE64" ]; then
