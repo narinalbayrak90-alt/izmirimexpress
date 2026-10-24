@@ -13,6 +13,7 @@ import '../services/onboarding_storage_service.dart';
 import '../services/onesignal_service.dart';
 import '../services/road_route_service.dart';
 import '../services/rider_auth_service.dart';
+import '../services/rider_cash_deposit_service.dart';
 import '../services/rider_location_service.dart';
 import '../services/rider_location_tracker.dart';
 import '../services/rider_order_service.dart';
@@ -83,6 +84,10 @@ final riderOrderServiceProvider = Provider<RiderOrderService>((ref) {
 
 final riderWithdrawalServiceProvider = Provider<RiderWithdrawalService>((ref) {
   return RiderWithdrawalService(ref.watch(apiClientProvider));
+});
+
+final riderCashDepositServiceProvider = Provider<RiderCashDepositService>((ref) {
+  return RiderCashDepositService(ref.watch(apiClientProvider));
 });
 
 final supportServiceProvider = Provider<SupportService>((ref) {

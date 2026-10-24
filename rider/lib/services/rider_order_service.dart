@@ -263,6 +263,7 @@ class RiderEarningsSummary {
     required this.totalDeliveries,
     this.cashInHand,
     this.cashDeposits = const [],
+    this.pendingDeposits = 0,
   });
 
   final double todayEarning;
@@ -283,6 +284,9 @@ class RiderEarningsSummary {
   /// Latest handovers the office recorded, newest first.
   final List<RiderCashDeposit> cashDeposits;
 
+  /// IBAN transfers reported but not yet approved by the office.
+  final double pendingDeposits;
+
   factory RiderEarningsSummary.fromJson(Map<String, dynamic> json) {
     return RiderEarningsSummary(
       todayEarning: (json['today_earning'] as num).toDouble(),
@@ -291,6 +295,7 @@ class RiderEarningsSummary {
       totalEarning: (json['total_earning'] as num).toDouble(),
       totalDeliveries: json['total_deliveries'] as int,
       cashInHand: (json['cash_in_hand'] as num?)?.toDouble(),
+      pendingDeposits: (json['pending_deposits'] as num?)?.toDouble() ?? 0,
       cashDeposits: ((json['cash_deposits'] as List?) ?? const [])
           .map((row) => RiderCashDeposit.fromJson(row as Map<String, dynamic>))
           .toList(),
@@ -298,13 +303,27 @@ class RiderEarningsSummary {
   }
 }
 
-/// One cash handover at the office, recorded by an admin from the Rider
-/// Settlement report.
+/// One cash settlement: a handover at the office recorded by an admin, or
+/// an IBAN transfer the rider reported, approved by the office.
 class RiderCashDeposit {
-  const RiderCashDeposit({required this.id, required this.amount, this.note, this.createdAt});
+  const RiderCashDeposit({
+    required this.id,
+    required this.amount,
+    this.method = 'cash',
+    this.status = 'approved',
+    this.note,
+    this.createdAt,
+  });
 
   final int id;
   final double amount;
+
+  /// cash (handed over at the office) or iban (bank transfer).
+  final String method;
+
+  /// pending | approved | rejected — only approved ones lower the cash
+  /// in hand.
+  final String status;
   final String? note;
   final DateTime? createdAt;
 
@@ -312,6 +331,8 @@ class RiderCashDeposit {
     return RiderCashDeposit(
       id: json['id'] as int,
       amount: (json['amount'] as num).toDouble(),
+      method: json['method'] as String? ?? 'cash',
+      status: json['status'] as String? ?? 'approved',
       note: json['note'] as String?,
       createdAt: DateTime.tryParse(json['created_at'] as String? ?? '')?.toLocal(),
     );
