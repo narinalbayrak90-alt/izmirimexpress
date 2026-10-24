@@ -7,6 +7,10 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Chrome: follow the phone's font size through the page's text size
+       instead of zooming the whole page (the app keeps text at its designed
+       size anyway; see lib/app.dart). -->
+  <meta name="text-scale" content="scale">
   <meta name="description" content="İzmirim Express ile kurye çağırın, gönderinizi canlı takip edin.">
   <meta name="theme-color" content="#FFFFFF">
 
@@ -47,6 +51,42 @@
       var loading = document.getElementById('loading');
       if (loading) loading.remove();
     });
+  </script>
+  <script>
+    // Phones draw the app at no more than 2 pixels per point. Their screens
+    // are 2.6x-3.5x, and every extra pixel is drawn again on each frame
+    // while scrolling, which is what made scrolling stutter on phones (most
+    // of all on iPhones, where the browser gives the app a single thread to
+    // draw on). At 2x the difference in sharpness is hard to see. Desktops
+    // are left alone.
+    (function () {
+      if (!window.matchMedia('(pointer: coarse)').matches) return;
+      var desc = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio') ||
+        Object.getOwnPropertyDescriptor(Window.prototype, 'devicePixelRatio');
+      if (!desc || !desc.get || desc.configurable === false) return;
+      var real = desc.get;
+      try {
+        Object.defineProperty(window, 'devicePixelRatio', {
+          configurable: true,
+          get: function () { return Math.min(real.call(window), 2); },
+        });
+      } catch (e) {}
+    })();
+  </script>
+  <script>
+    // How much the browser zoomed the page on its own. Chrome on Android
+    // zooms every page to follow the phone's font size, which makes the
+    // whole app (buttons and cards too) bigger than a native app; the app
+    // undoes it (lib/services/page_zoom.dart). screen.width stays at the
+    // unzoomed width while the page's own width shrinks. Android only: on
+    // a desktop or an iPhone, zoom is the user's own choice.
+    window.izmirimZoom = function () {
+      if (!/Android/.test(navigator.userAgent)) return 1;
+      var landscape = window.innerWidth > window.innerHeight;
+      var screenWidth = landscape ? Math.max(screen.width, screen.height) : Math.min(screen.width, screen.height);
+      var zoom = screenWidth / window.innerWidth;
+      return zoom > 1.02 && zoom < 2 ? zoom : 1;
+    };
   </script>
   <script>
     // Smooth mouse-wheel scrolling. Flutter jumps a whole wheel notch

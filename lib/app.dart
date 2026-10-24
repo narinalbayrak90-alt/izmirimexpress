@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/app_providers.dart';
 import 'screens/home/home_provider.dart';
+import 'services/page_zoom.dart';
 import 'theme/app_theme.dart';
 import 'widgets/responsive_shell.dart';
 
@@ -62,9 +63,26 @@ class PickupDropApp extends ConsumerWidget {
         // same screens in a native app. Never scale text up beyond the
         // designed sizes there; smaller settings still apply.
         final mediaQuery = MediaQuery.of(context);
+        final unscaled = mediaQuery.copyWith(textScaler: mediaQuery.textScaler.clamp(maxScaleFactor: 1.0));
+        final zoom = pageZoom();
+        if (zoom == 1) return MediaQuery(data: unscaled, child: shell);
+        // The browser zoomed the whole page (see pageZoom): lay the app out
+        // at the screen's real width and shrink it back down to fit, so it
+        // looks the same size as it does at no zoom.
+        final size = mediaQuery.size * zoom;
         return MediaQuery(
-          data: mediaQuery.copyWith(textScaler: mediaQuery.textScaler.clamp(maxScaleFactor: 1.0)),
-          child: shell,
+          data: unscaled.copyWith(
+            size: size,
+            devicePixelRatio: mediaQuery.devicePixelRatio / zoom,
+            padding: mediaQuery.padding * zoom,
+            viewPadding: mediaQuery.viewPadding * zoom,
+            viewInsets: mediaQuery.viewInsets * zoom,
+          ),
+          child: FittedBox(
+            fit: BoxFit.fill,
+            alignment: Alignment.topLeft,
+            child: SizedBox.fromSize(size: size, child: shell),
+          ),
         );
       },
     );
