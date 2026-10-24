@@ -614,20 +614,20 @@ class _FieldLabel extends StatelessWidget {
 }
 
 /// Small map at the top of the order: pickup (orange) and drop-off (green)
-/// with a line between them and the rider's own blue dot. Whichever stop
+/// with the road between them and the rider's own blue dot. Whichever stop
 /// is next is the one shown first in its bubble. Not draggable, so it
 /// doesn't fight the page's own scrolling; "Yol tarifi" on each address
 /// card opens real navigation.
-class _OrderMap extends StatefulWidget {
+class _OrderMap extends ConsumerStatefulWidget {
   const _OrderMap({required this.order});
 
   final RiderOrderDetail order;
 
   @override
-  State<_OrderMap> createState() => _OrderMapState();
+  ConsumerState<_OrderMap> createState() => _OrderMapState();
 }
 
-class _OrderMapState extends State<_OrderMap> {
+class _OrderMapState extends ConsumerState<_OrderMap> {
   GoogleMapController? _controller;
 
   LatLng get _pickup => LatLng(widget.order.pickup.lat, widget.order.pickup.lng);
@@ -644,13 +644,16 @@ class _OrderMapState extends State<_OrderMap> {
   void _fit() {
     final controller = _controller;
     if (controller == null) return;
-    controller.moveCamera(CameraUpdate.newLatLngBounds(OrderMapPins.bounds([_pickup, _dropoff]), 40));
+    final road = ref.read(roadRouteProvider((_pickup, _dropoff))).valueOrNull;
+    controller.moveCamera(CameraUpdate.newLatLngBounds(OrderMapPins.bounds(road ?? [_pickup, _dropoff]), 40));
     // Open the bubble of the stop the rider is heading to now.
     controller.showMarkerInfoWindow(MarkerId(_pickedUp ? 'dropoff' : 'pickup'));
   }
 
   @override
   Widget build(BuildContext context) {
+    final road = ref.watch(roadRouteProvider((_pickup, _dropoff))).valueOrNull;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
       child: SizedBox(
@@ -675,10 +678,11 @@ class _OrderMapState extends State<_OrderMap> {
           polylines: {
             Polyline(
               polylineId: const PolylineId('route'),
-              points: [_pickup, _dropoff],
+              // Dashed straight line until the road route has loaded.
+              points: road ?? [_pickup, _dropoff],
               color: AppColors.primaryDark,
               width: 4,
-              patterns: [PatternItem.dash(20), PatternItem.gap(12)],
+              patterns: road == null ? [PatternItem.dash(20), PatternItem.gap(12)] : const [],
             ),
           },
           myLocationEnabled: true,

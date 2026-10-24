@@ -17,7 +17,7 @@ import '../home/home_provider.dart';
 /// orders waiting nearby.
 ///
 /// - Own orders not yet picked up: an orange pickup pin and a green
-///   drop-off pin, joined by a line.
+///   drop-off pin, joined by the road between them.
 /// - Own orders already picked up: only the green drop-off pin is left.
 /// - New orders (online only): a blue pin at the pickup.
 ///
@@ -100,12 +100,15 @@ class _OrdersMapScreenState extends ConsumerState<OrdersMapScreen> {
         ));
       }
       if (pickup != null && dropoff != null && !pickedUp) {
+        final ends = (OrderMapPins.latLng(pickup), OrderMapPins.latLng(dropoff));
+        final road = ref.watch(roadRouteProvider(ends)).valueOrNull;
         lines.add(Polyline(
           polylineId: PolylineId('l${order.id}'),
-          points: [OrderMapPins.latLng(pickup), OrderMapPins.latLng(dropoff)],
+          // Dashed straight line until the road route has loaded.
+          points: road ?? [ends.$1, ends.$2],
           color: AppColors.primaryDark,
           width: 4,
-          patterns: [PatternItem.dash(20), PatternItem.gap(12)],
+          patterns: road == null ? [PatternItem.dash(20), PatternItem.gap(12)] : const [],
         ));
       }
     }

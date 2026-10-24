@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config/env.dart';
@@ -10,6 +11,7 @@ import '../services/api_client.dart';
 import '../services/api_interceptors.dart';
 import '../services/onboarding_storage_service.dart';
 import '../services/onesignal_service.dart';
+import '../services/road_route_service.dart';
 import '../services/rider_auth_service.dart';
 import '../services/rider_location_service.dart';
 import '../services/rider_location_tracker.dart';
@@ -103,3 +105,14 @@ final riderLocationTrackerProvider = Provider<RiderLocationTracker>((ref) {
 });
 
 final routerProvider = Provider<GoRouter>((ref) => buildRouter(ref));
+
+/// Kept for the app's lifetime so its route cache is too.
+final roadRouteServiceProvider = Provider<RoadRouteService>((ref) {
+  return RoadRouteService(ref.watch(dioProvider));
+});
+
+/// The road between two points, for drawing on a map (a straight line
+/// until it loads, or if no route is found).
+final roadRouteProvider = FutureProvider.autoDispose.family<List<LatLng>, (LatLng, LatLng)>((ref, ends) {
+  return ref.watch(roadRouteServiceProvider).route(ends.$1, ends.$2);
+});
