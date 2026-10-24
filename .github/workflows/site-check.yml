@@ -14,6 +14,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Headers and build
         run: |
           for u in / /app/ /app/index.html /app/flutter_bootstrap.js /app/main.dart.wasm /app/sw.js; do
