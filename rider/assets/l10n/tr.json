@@ -6,7 +6,11 @@
     "error": "Bir şeyler ters gitti",
     "cancel": "İptal",
     "retry": "Tekrar Dene",
-    "page_not_found": "Sayfa bulunamadı"
+    "page_not_found": "Sayfa bulunamadı",
+    "generic_error": "Bir şeyler ters gitti. Lütfen tekrar dene.",
+    "timeout": "İstek zaman aşımına uğradı. Lütfen tekrar dene.",
+    "no_internet": "İnternet bağlantısı yok. Lütfen bağlantını kontrol et.",
+    "cancelled": "İstek iptal edildi."
   },
   "welcome": {
     "title": "İzmirim Express ile Teslimat Yap",
@@ -238,5 +242,37 @@
     "message": "Kurye uygulamasının yeni bir sürümü yayınlandı. İndirip kurman yeterli, bilgilerin silinmez.",
     "later": "Sonra",
     "download": "İndir"
+  },
+  "verification": {
+    "title": "Hesap Durumu",
+    "pending_title": "Başvurun İnceleniyor",
+    "pending_message": "Ekibimiz bilgilerini ve belgelerini inceliyor. Hesabın onaylanınca giriş yapıp sipariş almaya başlayabilirsin.",
+    "approved_title": "Hesabın Onaylandı",
+    "approved_message": "Tebrikler! Artık giriş yapıp sipariş almaya başlayabilirsin.",
+    "rejected_title": "Başvurun Onaylanmadı",
+    "rejected_message": "Başvurun şu an için onaylanmadı. Ayrıntılar için destek ekibiyle iletişime geç.",
+    "blocked_title": "Hesabın Engellendi",
+    "blocked_message": "Hesabın engellenmiş. Ayrıntılar için destek ekibiyle iletişime geç.",
+    "check_again": "Tekrar Kontrol Et",
+    "continue_to_login": "Girişe Devam Et",
+    "back_to_login": "Girişe Dön",
+    "section_title": "Doğrulama",
+    "badge_verified": "Onaylı",
+    "badge_pending": "İnceleniyor",
+    "badge_rejected": "Reddedildi",
+    "badge_blocked": "Engellendi",
+    "doc_photo": "Profil Fotoğrafı",
+    "doc_license": "Ehliyet",
+    "doc_id": "Kimlik",
+    "doc_uploaded": "Yüklendi",
+    "doc_missing": "Eksik",
+    "update_documents": "Belgeleri Güncelle",
+    "home_verified": "Hesabın onaylı, sipariş alabilirsin.",
+    "home_review": "Hesabın inceleniyor.",
+    "home_blocked": "Hesabın aktif değil. Destek ekibiyle iletişime geç."
+  },
+  "location": {
+    "notification_title": "Çevrimiçisin",
+    "notification_text": "Sipariş alırken ve teslim ederken konumun paylaşılıyor."
   }
 }

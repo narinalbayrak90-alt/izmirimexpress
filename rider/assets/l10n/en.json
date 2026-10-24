@@ -6,7 +6,11 @@
     "error": "Something went wrong",
     "cancel": "Cancel",
     "retry": "Retry",
-    "page_not_found": "Page not found"
+    "page_not_found": "Page not found",
+    "generic_error": "Something went wrong. Please try again.",
+    "timeout": "The request timed out. Please try again.",
+    "no_internet": "No internet connection. Please check your network.",
+    "cancelled": "Request was cancelled."
   },
   "welcome": {
     "title": "Deliver With Pickup & Drop",
@@ -238,5 +242,37 @@
     "message": "A new version of the rider app is out. Download and install it — your data stays as it is.",
     "later": "Later",
     "download": "Download"
+  },
+  "verification": {
+    "title": "Account Status",
+    "pending_title": "Application Under Review",
+    "pending_message": "Our team is reviewing your details and documents. You can log in and start taking orders once your account is approved.",
+    "approved_title": "Account Approved",
+    "approved_message": "Congratulations! You can now log in and start taking orders.",
+    "rejected_title": "Application Not Approved",
+    "rejected_message": "Your application wasn't approved. Please contact support for details.",
+    "blocked_title": "Account Blocked",
+    "blocked_message": "Your account has been blocked. Please contact support for details.",
+    "check_again": "Check Again",
+    "continue_to_login": "Continue to Login",
+    "back_to_login": "Back to Login",
+    "section_title": "Verification",
+    "badge_verified": "Verified",
+    "badge_pending": "Under Review",
+    "badge_rejected": "Rejected",
+    "badge_blocked": "Blocked",
+    "doc_photo": "Profile Photo",
+    "doc_license": "Driving License",
+    "doc_id": "ID Proof",
+    "doc_uploaded": "Uploaded",
+    "doc_missing": "Missing",
+    "update_documents": "Update Documents",
+    "home_verified": "Your account is verified — you can take orders.",
+    "home_review": "Your account is under review.",
+    "home_blocked": "Your account isn't active. Please contact support."
+  },
+  "location": {
+    "notification_title": "You're online",
+    "notification_text": "Sharing your location while you accept and deliver orders."
   }
 }

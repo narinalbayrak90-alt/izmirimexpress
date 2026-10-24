@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:dio/dio.dart';
 
 import 'api_exception.dart';
@@ -44,7 +45,7 @@ class ApiErrorInterceptor extends Interceptor {
       handler.next(
         err.copyWith(
           error: ApiException(
-            message: data['message'] as String? ?? 'Something went wrong.',
+            message: data['message'] as String? ?? 'common.generic_error'.tr(),
             errors: data['errors'],
             statusCode: statusCode,
           ),
@@ -64,15 +65,15 @@ class ApiErrorInterceptor extends Interceptor {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.transformTimeout:
-        return 'The request timed out. Please try again.';
+        return 'common.timeout'.tr();
       case DioExceptionType.connectionError:
-        return 'No internet connection. Please check your network.';
+        return 'common.no_internet'.tr();
       case DioExceptionType.cancel:
-        return 'Request was cancelled.';
+        return 'common.cancelled'.tr();
       case DioExceptionType.badCertificate:
       case DioExceptionType.badResponse:
       case DioExceptionType.unknown:
-        return 'Something went wrong. Please try again.';
+        return 'common.generic_error'.tr();
     }
   }
 }

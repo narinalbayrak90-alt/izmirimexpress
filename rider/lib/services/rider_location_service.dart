@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -75,9 +76,9 @@ class RiderLocationService {
       return AndroidSettings(
         accuracy: LocationAccuracy.high,
         intervalDuration: const Duration(seconds: 5),
-        foregroundNotificationConfig: const ForegroundNotificationConfig(
-          notificationTitle: 'You\'re online',
-          notificationText: 'Sharing your location while you accept and deliver orders.',
+        foregroundNotificationConfig: ForegroundNotificationConfig(
+          notificationTitle: 'location.notification_title'.tr(),
+          notificationText: 'location.notification_text'.tr(),
           enableWakeLock: true,
         ),
       );

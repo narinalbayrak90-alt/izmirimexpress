@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:dio/dio.dart';
 
 import 'api_exception.dart';
@@ -37,7 +38,7 @@ class ApiClient {
     } on DioException catch (e) {
       final error = e.error;
       if (error is ApiException) throw error;
-      throw const ApiException(message: 'Something went wrong. Please try again.');
+      throw ApiException(message: 'common.generic_error'.tr());
     }
   }
 }
