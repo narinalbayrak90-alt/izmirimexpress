@@ -242,7 +242,15 @@
     "title": "Update available",
     "message": "A new version of the rider app is out. Download and install it — your data stays as it is.",
     "later": "Later",
-    "download": "Download"
+    "download": "Download",
+    "downloading": "Descargando la nueva versión",
+    "ready_title": "Listo para instalar",
+    "ready_message": "Toca Actualizar en la pantalla que se abre. Si no se abrió nada, toca Instalar.",
+    "permission_message": "En los ajustes que se abrieron, activa \"Permitir desde esta fuente\", vuelve y toca Instalar. Solo hace falta una vez.",
+    "install": "Instalar",
+    "failed_title": "No se pudo descargar",
+    "failed_message": "No se pudo descargar la actualización. Revisa tu conexión e inténtalo de nuevo.",
+    "open_browser": "Descargar en el navegador"
   },
   "verification": {
     "title": "Account Status",

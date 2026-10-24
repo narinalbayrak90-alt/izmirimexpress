@@ -242,7 +242,15 @@
     "title": "Yeni sürüm var",
     "message": "Kurye uygulamasının yeni bir sürümü yayınlandı. İndirip kurman yeterli, bilgilerin silinmez.",
     "later": "Sonra",
-    "download": "İndir"
+    "download": "İndir",
+    "downloading": "Yeni sürüm indiriliyor",
+    "ready_title": "Kurulmaya hazır",
+    "ready_message": "Açılan ekranda Güncelle'ye dokun. Ekran açılmadıysa Kur'a dokun.",
+    "permission_message": "Açılan ayarda \"Bu kaynaktan izin ver\" seçeneğini aç, sonra geri dönüp Kur'a dokun. Bunu sadece bir kez yapman gerekiyor.",
+    "install": "Kur",
+    "failed_title": "İndirilemedi",
+    "failed_message": "Güncelleme indirilemedi. İnternet bağlantını kontrol edip tekrar dene.",
+    "open_browser": "Tarayıcıda indir"
   },
   "verification": {
     "title": "Hesap Durumu",

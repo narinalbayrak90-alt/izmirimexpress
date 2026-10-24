@@ -242,7 +242,15 @@
     "title": "Update available",
     "message": "A new version of the rider app is out. Download and install it — your data stays as it is.",
     "later": "Later",
-    "download": "Download"
+    "download": "Download",
+    "downloading": "جارٍ تنزيل الإصدار الجديد",
+    "ready_title": "جاهز للتثبيت",
+    "ready_message": "اضغط تحديث في الشاشة التي تظهر. إذا لم يظهر شيء، اضغط تثبيت.",
+    "permission_message": "في الإعدادات التي فُتحت، فعّل \"السماح من هذا المصدر\"، ثم عُد واضغط تثبيت. يلزم ذلك مرة واحدة فقط.",
+    "install": "تثبيت",
+    "failed_title": "فشل التنزيل",
+    "failed_message": "تعذر تنزيل التحديث. تحقق من الاتصال وحاول مرة أخرى.",
+    "open_browser": "التنزيل في المتصفح"
   },
   "verification": {
     "title": "Account Status",
