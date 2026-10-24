@@ -78,6 +78,7 @@
     "withdraw_amount_exceeds_error": "Amount exceeds your available balance.",
     "withdraw_submit": "Request",
     "withdraw_no_balance": "You don't have any balance available to withdraw yet.",
+    "withdraw_cash_first": "Hand over the {amount} cash you hold at the office before withdrawing.",
     "withdraw_success": "Withdrawal request submitted.",
     "withdrawals_title": "Withdrawal Requests",
     "no_withdrawals": "No withdrawal requests yet.",

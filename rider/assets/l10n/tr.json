@@ -78,6 +78,7 @@
     "withdraw_amount_exceeds_error": "Tutar kullanılabilir bakiyeni aşıyor.",
     "withdraw_submit": "Talep Et",
     "withdraw_no_balance": "Henüz çekilebilir bakiyen yok.",
+    "withdraw_cash_first": "Para çekmek için önce elindeki {amount} nakdi ofise teslim etmelisin.",
     "withdraw_success": "Para çekme talebin gönderildi.",
     "withdrawals_title": "Para Çekme Talepleri",
     "no_withdrawals": "Henüz para çekme talebin yok.",

@@ -54,6 +54,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     }
     if (!mounted) return;
 
+    if (summary.cashInHand > 0) {
+      final currency = ref.read(riderSettingsProvider).valueOrNull ?? const RiderSettings();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('earning.withdraw_cash_first'.tr(namedArgs: {'amount': currency.format(summary.cashInHand)}))),
+      );
+      return;
+    }
+
     if (summary.availableBalance <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('earning.withdraw_no_balance'.tr())),
@@ -150,6 +158,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
   bool _isTogglingAvailability = false;
   final Set<int> _acceptingOrderIds = {};
   bool _hasResumedTracker = false;
+  bool _hasTaggedPush = false;
 
   Future<void> _toggleAvailability(bool goOnline) async {
     if (goOnline) {
@@ -236,6 +245,13 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
     // profile load, not on every rebuild.
     ref.listen(riderProfileProvider, (previous, next) {
       final rider = next.valueOrNull;
+      // Re-tag on every app start, not only at login, so new-order pushes
+      // reach riders whose session outlived an install or an SDK reset.
+      if (rider != null && !_hasTaggedPush) {
+        _hasTaggedPush = true;
+        ref.read(oneSignalServiceProvider).tagRiderId(rider.id);
+        ref.read(oneSignalServiceProvider).requestPermission();
+      }
       if (rider != null && rider.isOnline && !_hasResumedTracker) {
         _hasResumedTracker = true;
         ref.read(riderLocationTrackerProvider).start();
