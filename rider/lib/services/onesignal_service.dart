@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 import '../config/env.dart';
@@ -13,12 +14,20 @@ class OneSignalService {
   /// with `/rider/settings`), applied as soon as [initialize] runs.
   int? _pendingRiderId;
 
+  /// Whether the OS lets this app show notifications: null until the SDK
+  /// is initialized (no App ID yet), then kept current by OneSignal's
+  /// permission observer. Home shows a "turn on notifications" card while
+  /// this is false.
+  final ValueNotifier<bool?> permission = ValueNotifier(null);
+
   void initialize(String appId) {
     if (_isInitialized || appId.isEmpty) return;
 
     OneSignal.Debug.setLogLevel(Env.isProduction ? OSLogLevel.none : OSLogLevel.verbose);
     OneSignal.initialize(appId);
     _isInitialized = true;
+    permission.value = OneSignal.Notifications.permission;
+    OneSignal.Notifications.addPermissionObserver((granted) => permission.value = granted);
 
     final riderId = _pendingRiderId;
     if (riderId != null) {
@@ -32,7 +41,16 @@ class OneSignalService {
   /// Android 13+ (POST_NOTIFICATIONS is a runtime permission there).
   Future<bool> requestPermission() async {
     if (!_isInitialized) return false;
-    return OneSignal.Notifications.requestPermission(true);
+    final granted = await OneSignal.Notifications.requestPermission(true);
+    permission.value = granted;
+    return granted;
+  }
+
+  /// Re-reads the permission, e.g. after the rider comes back from the
+  /// system settings screen where they may have just turned it on.
+  void refreshPermission() {
+    if (!_isInitialized) return;
+    permission.value = OneSignal.Notifications.permission;
   }
 
   /// Tags this device with the logged-in rider's id so the backend can

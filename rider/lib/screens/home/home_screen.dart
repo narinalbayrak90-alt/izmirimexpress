@@ -280,6 +280,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
               const SizedBox(height: AppSpacing.sm),
               _OfflineBanner(),
             ],
+            const _NotificationPermissionCard(),
             const SizedBox(height: AppSpacing.xl),
             Text('home.active_orders_title'.tr(), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18)),
             const SizedBox(height: AppSpacing.sm),
@@ -410,6 +411,76 @@ class _AvailabilityCard extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+/// Shown while the OS blocks this app's notifications, so a rider can't
+/// miss new-order pushes without knowing it. The button asks again, or
+/// opens the system settings when Android won't show the prompt any more
+/// (the rider denied it before). Hidden when push isn't configured yet.
+class _NotificationPermissionCard extends ConsumerStatefulWidget {
+  const _NotificationPermissionCard();
+
+  @override
+  ConsumerState<_NotificationPermissionCard> createState() => _NotificationPermissionCardState();
+}
+
+class _NotificationPermissionCardState extends ConsumerState<_NotificationPermissionCard> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) ref.read(oneSignalServiceProvider).refreshPermission();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final service = ref.watch(oneSignalServiceProvider);
+
+    return ValueListenableBuilder<bool?>(
+      valueListenable: service.permission,
+      builder: (context, granted, _) {
+        if (granted != false) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.md),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.errorBackground,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.notifications_off_outlined, color: AppColors.error),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    'home.notifications_off'.tr(),
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.error),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                FilledButton(
+                  onPressed: service.requestPermission,
+                  child: Text('home.notifications_turn_on'.tr()),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

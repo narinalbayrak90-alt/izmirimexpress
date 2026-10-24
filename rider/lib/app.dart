@@ -37,7 +37,17 @@ class _PickupRiderAppState extends ConsumerState<PickupRiderApp> with WidgetsBin
   // rarely fully close it.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _checkForUpdate();
+    if (state == AppLifecycleState.resumed) {
+      _checkForUpdate();
+      // Settings that failed to load at launch (no signal) or had no
+      // OneSignal App ID yet would otherwise leave push off until the
+      // app is killed; fetch them again so push starts as soon as it can.
+      final settings = ref.read(riderSettingsProvider);
+      final appId = settings.valueOrNull?.onesignalAppId;
+      if (settings.hasError || (settings.hasValue && (appId == null || appId.isEmpty))) {
+        ref.invalidate(riderSettingsProvider);
+      }
+    }
   }
 
   /// Offers a newer APK if CI has published one.

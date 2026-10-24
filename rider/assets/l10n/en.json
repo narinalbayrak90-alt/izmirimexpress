@@ -52,7 +52,9 @@
     "accept_taken": "This order was just taken by another rider.",
     "distance_away": "{distance} km away",
     "load_error": "Couldn't load orders.",
-    "earn_label": "You'll earn"
+    "earn_label": "You'll earn",
+    "notifications_off": "Notifications are off. Turn them on so you don't miss new orders.",
+    "notifications_turn_on": "Turn on"
   },
   "history": {
     "title": "History",

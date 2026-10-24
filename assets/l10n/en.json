@@ -391,5 +391,11 @@
     "ios_step_add": "Choose \"Add to Home Screen\".",
     "ios_step_confirm": "Tap \"Add\" in the top right.",
     "ios_note": "İzmirim Express then opens from your home screen like an app."
+  },
+  "push": {
+    "title": "Turn on notifications",
+    "subtitle": "We'll let you know when your order is confirmed and on its way.",
+    "turn_on": "Turn on",
+    "enabled": "Notifications are on."
   }
 }

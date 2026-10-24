@@ -10,6 +10,15 @@
 // tool/build_web.sh) so it can control the whole site, where the app
 // lives at `/`.
 
+// OneSignal's push handling (browser notifications for order updates),
+// in this same worker because a site can only have one per scope. If the
+// CDN can't be reached the worker still installs, just without push.
+try {
+  importScripts('https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js');
+} catch (e) {
+  // Push stays off until the next successful install.
+}
+
 self.addEventListener('install', () => self.skipWaiting());
 
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
