@@ -114,9 +114,10 @@ class _HomeHeader extends ConsumerWidget {
               ? Image.network(
                   logoUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.asset('assets/logo.png', fit: BoxFit.cover),
+                  cacheWidth: 192,
+                  errorBuilder: (context, error, stackTrace) => Image.asset('assets/logo.png', fit: BoxFit.cover, cacheWidth: 192),
                 )
-              : Image.asset('assets/logo.png', fit: BoxFit.cover),
+              : Image.asset('assets/logo.png', fit: BoxFit.cover, cacheWidth: 192),
         ),
         const SizedBox(width: AppSpacing.sm),
         Text(
@@ -201,6 +202,9 @@ class _HeroBanner extends ConsumerWidget {
                   ? Image.network(
                       imageUrl,
                       fit: BoxFit.contain,
+                      // Decoded at display size, not the upload's full
+                      // resolution — big decodes are what stutter a scroll.
+                      cacheHeight: 600,
                       errorBuilder: (context, error, stackTrace) => const Icon(
                         Icons.local_shipping_rounded,
                         size: 56,
@@ -301,6 +305,7 @@ class _CategoryCard extends StatelessWidget {
                   ? Image.network(
                       category.iconUrl!,
                       fit: BoxFit.contain,
+                      cacheWidth: 144,
                       errorBuilder: (context, error, stackTrace) =>
                           const Icon(Icons.inventory_2_outlined, color: AppColors.primaryDark),
                     )

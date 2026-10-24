@@ -37,6 +37,13 @@ AddType text/javascript .mjs
     <Files "sw.js">
         Header set Service-Worker-Allowed "/"
     </Files>
+    # Cross-origin isolation: lets Flutter draw on a background thread
+    # (multi-threaded skwasm) instead of the page's main thread, which is
+    # what made scrolling stutter on phones. "credentialless" still loads
+    # Google Maps and other cross-origin images/scripts, just without
+    # cookies. The root .htaccess sends the same pair for "/".
+    Header set Cross-Origin-Opener-Policy "same-origin"
+    Header set Cross-Origin-Embedder-Policy "credentialless"
 </IfModule>
 HTACCESS
 echo "Web sürümü $target/app klasörüne kopyalandı."

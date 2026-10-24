@@ -270,6 +270,7 @@ class _CategorySelectCard extends StatelessWidget {
                       ? Image.network(
                           category.iconUrl!,
                           fit: BoxFit.contain,
+                          cacheWidth: 256,
                           errorBuilder: (context, error, stackTrace) =>
                               const Icon(
                                 Icons.inventory_2_outlined,
@@ -382,6 +383,7 @@ class _SafeDeliveryBanner extends ConsumerWidget {
                 imageUrl,
                 height: 56,
                 width: 56,
+                cacheWidth: 192,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) =>
                     const SizedBox.shrink(),

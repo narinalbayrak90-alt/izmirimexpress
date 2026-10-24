@@ -128,6 +128,7 @@ class _ActiveOrderCard extends StatelessWidget {
                       child: Image.network(
                         order.categoryIcon!,
                         fit: BoxFit.cover,
+                        cacheWidth: 144,
                         errorBuilder: (context, error, stackTrace) =>
                             const Icon(Icons.local_shipping_rounded, color: AppColors.primaryDark),
                       ),

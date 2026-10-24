@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,7 +53,20 @@ class PickupDropApp extends ConsumerWidget {
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
-      builder: (context, child) => ResponsiveShell(child: child ?? const SizedBox.shrink()),
+      builder: (context, child) {
+        final shell = ResponsiveShell(child: child ?? const SizedBox.shrink());
+        if (!kIsWeb) return shell;
+        // Mobile browsers fold their own text-size setting into the page
+        // (Chrome on Android follows the system font size, and scales it
+        // further), so the web build came out noticeably bigger than the
+        // same screens in a native app. Never scale text up beyond the
+        // designed sizes there; smaller settings still apply.
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(textScaler: mediaQuery.textScaler.clamp(maxScaleFactor: 1.0)),
+          child: shell,
+        );
+      },
     );
   }
 }
