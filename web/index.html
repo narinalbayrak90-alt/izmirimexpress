@@ -164,13 +164,82 @@
 
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () {
-          // Whole site when the server allows it (Service-Worker-Allowed),
-          // otherwise just /app/.
-          navigator.serviceWorker.register('/app/sw.js', { scope: '/' }).catch(function () {
-            return navigator.serviceWorker.register('/app/sw.js');
+          // Once OneSignal has registered the same worker (with its own
+          // query string) leave it alone, or the two would keep replacing
+          // each other's registration on every load.
+          navigator.serviceWorker.getRegistration('/').then(function (existing) {
+            var url = existing && existing.active && existing.active.scriptURL;
+            if (url && url.indexOf('/app/sw.js') !== -1) return;
+            // Whole site when the server allows it (Service-Worker-Allowed),
+            // otherwise just /app/.
+            return navigator.serviceWorker.register('/app/sw.js', { scope: '/' }).catch(function () {
+              return navigator.serviceWorker.register('/app/sw.js');
+            });
           }).catch(function () {});
         });
       }
+    })();
+  </script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    // Browser push through OneSignal's Web SDK (the Flutter SDK has no web
+    // side). The app calls init() with the App ID from the admin panel
+    // (App Setting > Push Notification > User App), tags the signed-in
+    // customer with user_id like the mobile app does, and asks for
+    // permission from a button tap. lib/services/web_push_web.dart reads
+    // this through `window.izmirimPush`. OneSignal shares /app/sw.js with
+    // the app install worker (see sw.js).
+    (function () {
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      var ready = null;
+
+      function withOneSignal(fn) {
+        if (!ready) return Promise.resolve(null);
+        return ready.then(function (os) { return os ? fn(os) : null; });
+      }
+
+      window.izmirimPush = {
+        isSupported: function () {
+          return 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window;
+        },
+        permission: function () {
+          return 'Notification' in window ? Notification.permission : 'denied';
+        },
+        init: function (appId) {
+          if (ready || !window.izmirimPush.isSupported()) return;
+          ready = new Promise(function (resolve) {
+            window.OneSignalDeferred.push(function (os) {
+              return os.init({
+                appId: appId,
+                serviceWorkerPath: 'app/sw.js',
+                serviceWorkerParam: { scope: '/' },
+              }).then(function () { resolve(os); }, function (error) {
+                console.warn('OneSignal init failed', error);
+                resolve(null);
+              });
+            });
+          });
+        },
+        requestPermission: function () {
+          if (!window.izmirimPush.isSupported()) return Promise.resolve(false);
+          // Push not configured in the panel yet: still ask, so OneSignal
+          // subscribes this browser as soon as it starts.
+          if (!ready) {
+            return Notification.requestPermission().then(function (answer) { return answer === 'granted'; }, function () { return false; });
+          }
+          return withOneSignal(function (os) {
+            return os.Notifications.requestPermission().then(function () {
+              return os.Notifications.permission === true;
+            });
+          }).then(function (granted) { return granted === true; }, function () { return false; });
+        },
+        tag: function (customerId) {
+          withOneSignal(function (os) { return os.User.addTag('user_id', customerId); }).catch(function () {});
+        },
+        untag: function () {
+          withOneSignal(function (os) { return os.User.removeTag('user_id'); }).catch(function () {});
+        },
+      };
     })();
   </script>
   <script src="flutter_bootstrap.js" async></script>

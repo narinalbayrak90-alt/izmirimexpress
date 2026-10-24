@@ -36,6 +36,10 @@ AddType text/javascript .mjs
     # sw.js (uygulama yükleme) /app/ yerine tüm siteyi kapsayabilsin.
     <Files "sw.js">
         Header set Service-Worker-Allowed "/"
+        # The worker pulls in OneSignal's push code from its CDN; keep the
+        # page's isolation header off the worker itself so that load is
+        # never blocked.
+        Header unset Cross-Origin-Embedder-Policy
     </Files>
     # Cross-origin isolation: lets Flutter draw on a background thread
     # (multi-threaded skwasm) instead of the page's main thread, which is

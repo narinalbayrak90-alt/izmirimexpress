@@ -11,6 +11,7 @@ import '../../widgets/responsive_shell.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/category_info_sheet.dart';
 import '../../widgets/install_app.dart';
+import '../../widgets/push_permission_card.dart';
 import '../booking/booking_providers.dart';
 import '../welcome/welcome_provider.dart';
 import 'active_orders_carousel.dart';
@@ -65,6 +66,7 @@ class HomeScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.lg),
               ],
               const InstallAppCard(),
+              const PushPermissionCard(),
               const _HeroBanner(),
               const SizedBox(height: AppSpacing.xl),
               Text('home.send_anything'.tr(), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 19)),

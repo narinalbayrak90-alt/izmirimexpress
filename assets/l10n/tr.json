@@ -391,5 +391,11 @@
     "ios_step_add": "\"Ana Ekrana Ekle\"yi seçin.",
     "ios_step_confirm": "Sağ üstteki \"Ekle\"ye dokunun.",
     "ios_note": "İzmirim Express artık ana ekranınızda, uygulama gibi açılır."
+  },
+  "push": {
+    "title": "Bildirimleri açın",
+    "subtitle": "Siparişiniz onaylanınca, kurye yola çıkınca haber verelim.",
+    "turn_on": "Aç",
+    "enabled": "Bildirimler açıldı."
   }
 }

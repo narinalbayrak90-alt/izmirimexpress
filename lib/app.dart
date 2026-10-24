@@ -13,6 +13,20 @@ import 'widgets/responsive_shell.dart';
 class PickupDropApp extends ConsumerWidget {
   const PickupDropApp({super.key});
 
+  /// Tags a customer who was already signed in when the app opened, so
+  /// order pushes reach them too, not only those who log in afresh
+  /// (completeAuthSession tags those).
+  static Future<void> _tagSignedInCustomer(WidgetRef ref) async {
+    try {
+      final token = await ref.read(secureStorageProvider).readToken();
+      if (token == null || token.isEmpty) return;
+      final profile = await ref.read(authServiceProvider).getProfile();
+      ref.read(oneSignalServiceProvider).tagUserId(profile.id);
+    } catch (_) {
+      // Offline or signed out: the next login tags the device.
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
@@ -29,6 +43,7 @@ class PickupDropApp extends ConsumerWidget {
       final appId = settings.onesignalAppId;
       if (appId != null && appId.isNotEmpty) {
         ref.read(oneSignalServiceProvider).initialize(appId);
+        _tagSignedInCustomer(ref);
       }
 
       // İzmirim Express is a Turkish service: the app always opens in
