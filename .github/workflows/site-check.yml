@@ -1,0 +1,22 @@
+# Manual/diagnostic: prints the live site's response headers and build id,
+# so a deploy can be checked from CI (this repo's dev containers can't
+# reach izmirimexpress.com).
+name: Site check
+
+on:
+  push:
+    paths:
+      - '.github/workflows/site-check.yml'
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Headers and build
+        run: |
+          for u in / /app/ /app/index.html /app/flutter_bootstrap.js /app/main.dart.wasm /app/sw.js; do
+            echo "== $u"; curl -sS -o /dev/null -D - "https://izmirimexpress.com$u" | grep -iE '^(HTTP|cross-origin|cache-control|content-type|server|x-litespeed)' || true
+          done
+          echo "== build id"; curl -sS https://izmirimexpress.com/app/.last_build_id || true; echo
+          echo "== bootstrap build"; curl -sS https://izmirimexpress.com/app/flutter_bootstrap.js | grep -o 'serviceWorkerVersion[^,]*' | head -2 || true
