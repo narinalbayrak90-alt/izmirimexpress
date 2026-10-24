@@ -53,14 +53,15 @@
     });
   </script>
   <script>
-    // Phones draw the app at no more than 2 pixels per point. Their screens
-    // are 2.6x-3.5x, and every extra pixel is drawn again on each frame
-    // while scrolling, which is what made scrolling stutter on phones (most
-    // of all on iPhones, where the browser gives the app a single thread to
-    // draw on). At 2x the difference in sharpness is hard to see. Desktops
-    // are left alone.
+    // Where the browser can't give the app its fast multi-threaded drawing
+    // mode (iPhone Safari: it needs cross-origin isolation, which Safari
+    // only allows in a form that breaks Google Maps), phones draw at no
+    // more than 2.5 pixels per point. Every pixel is drawn again on each
+    // frame while scrolling, and on a single thread a 3x screen stutters.
+    // Everywhere else (Android Chrome, desktops) the screen's full
+    // resolution is used: capping it there made the app look blurry.
     (function () {
-      if (!window.matchMedia('(pointer: coarse)').matches) return;
+      if (self.crossOriginIsolated || !window.matchMedia('(pointer: coarse)').matches) return;
       var desc = Object.getOwnPropertyDescriptor(window, 'devicePixelRatio') ||
         Object.getOwnPropertyDescriptor(Window.prototype, 'devicePixelRatio');
       if (!desc || !desc.get || desc.configurable === false) return;
@@ -68,7 +69,7 @@
       try {
         Object.defineProperty(window, 'devicePixelRatio', {
           configurable: true,
-          get: function () { return Math.min(real.call(window), 2); },
+          get: function () { return Math.min(real.call(window), 2.5); },
         });
       } catch (e) {}
     })();
