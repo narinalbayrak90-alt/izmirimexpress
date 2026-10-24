@@ -70,6 +70,13 @@ class _PickupRiderAppState extends ConsumerState<PickupRiderApp> with WidgetsBin
     // happening in main() — OneSignalService.initialize is idempotent, so
     // this firing again on a later rebuild is harmless.
     ref.listen(riderSettingsProvider, (previous, next) {
+      final live = next.valueOrNull;
+      if (live?.liveKey != null && live?.liveCluster != null) {
+        ref.read(liveConnectionProvider)
+          ..connect(key: live!.liveKey!, cluster: live.liveCluster!)
+          ..subscribe('riders');
+      }
+
       final appId = next.valueOrNull?.onesignalAppId;
       if (appId == null || appId.isEmpty) return;
 

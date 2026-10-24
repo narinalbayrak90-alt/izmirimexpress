@@ -44,6 +44,7 @@ class CustomerProfile {
     required this.isVerified,
     required this.totalDeliveries,
     required this.activeOrders,
+    this.liveChannel,
   });
 
   final int id;
@@ -57,6 +58,9 @@ class CustomerProfile {
   final int totalDeliveries;
   final int activeOrders;
 
+  /// This customer's Pusher channel for instant order updates (LiveSignal).
+  final String? liveChannel;
+
   factory CustomerProfile.fromJson(Map<String, dynamic> json) {
     return CustomerProfile(
       id: json['id'] as int,
@@ -69,6 +73,7 @@ class CustomerProfile {
       isVerified: json['is_verified'] as bool? ?? false,
       totalDeliveries: json['total_deliveries'] as int? ?? 0,
       activeOrders: json['active_orders'] as int? ?? 0,
+      liveChannel: json['live_channel'] as String?,
     );
   }
 }

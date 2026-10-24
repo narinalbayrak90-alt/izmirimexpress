@@ -37,4 +37,10 @@ Future<void> completeAuthSession(WidgetRef ref, {required String token, required
   await ref.read(secureStorageProvider).saveToken(token);
   ref.read(oneSignalServiceProvider).tagUserId(customerId);
   ref.read(oneSignalServiceProvider).requestPermission();
+  try {
+    final channel = (await ref.read(authServiceProvider).getProfile()).liveChannel;
+    if (channel != null) ref.read(liveConnectionProvider).subscribe(channel);
+  } catch (_) {
+    // Polling still covers this session.
+  }
 }

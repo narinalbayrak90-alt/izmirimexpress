@@ -41,6 +41,8 @@ class AppSettings {
     required this.deliveryArea,
     required this.maxDeliveryDistanceKm,
     this.onesignalAppId,
+    this.liveKey,
+    this.liveCluster,
   });
 
   /// App Setting > Welcome Page — shown in the home header and anywhere
@@ -76,6 +78,11 @@ class AppSettings {
   /// client SDK's own init key, meant to be public) is ever shared here;
   /// the REST API key stays server-only.
   final String? onesignalAppId;
+
+  /// Pusher key and cluster for instant refresh; null until the admin sets
+  /// them in App Setting > Push Notification > Live Updates.
+  final String? liveKey;
+  final String? liveCluster;
 
   static const _fallbackAppName = 'İzmirim Express';
   static const _fallbackCountryCodes = ['90', '91', '1', '44', '61', '971', '966', '65', '49', '33', '86'];
@@ -113,6 +120,8 @@ class AppSettings {
       maxDeliveryDistanceKm:
           (json['max_delivery_distance_km'] as num?)?.toDouble() ?? _fallbackMaxDeliveryDistanceKm,
       onesignalAppId: json['onesignal_app_id'] as String?,
+      liveKey: json['live'] is Map ? json['live']['key'] as String? : null,
+      liveCluster: json['live'] is Map ? json['live']['cluster'] as String? : null,
     );
   }
 
@@ -137,6 +146,7 @@ class AppSettings {
         'delivery_area': deliveryArea?.toJson(),
         'max_delivery_distance_km': maxDeliveryDistanceKm,
         'onesignal_app_id': onesignalAppId,
+        'live': liveKey == null ? null : {'key': liveKey, 'cluster': liveCluster},
       };
 
   /// Used before the first successful `/home` fetch (fresh install, no
@@ -155,5 +165,7 @@ class AppSettings {
         paymentMethods = _fallbackPaymentMethods,
         deliveryArea = null,
         maxDeliveryDistanceKm = _fallbackMaxDeliveryDistanceKm,
-        onesignalAppId = null;
+        onesignalAppId = null,
+        liveKey = null,
+        liveCluster = null;
 }

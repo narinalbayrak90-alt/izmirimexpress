@@ -5,9 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// How often on-screen data quietly re-fetches, so order statuses, rider
 /// positions and balances change without the user pulling to refresh.
-/// The backend runs on shared hosting with no WebSocket server, so this is
-/// polling; it pauses while the app is in the background.
+/// The backend runs on shared hosting with no WebSocket server, so this
+/// polls (pausing in the background), and [liveSignals] from Pusher make it
+/// immediate when the admin has set Pusher up.
 const liveRefreshInterval = Duration(seconds: 10);
+
+/// Fires when the backend signals a change through Pusher (see
+/// LiveConnection). Everything that refreshes on a timer also refreshes on
+/// this, so changes show at once when Pusher is set up and within
+/// [liveRefreshInterval] when it isn't.
+final liveSignals = StreamController<void>.broadcast();
 
 bool get _appIsVisible {
   final state = WidgetsBinding.instance.lifecycleState;
@@ -31,7 +38,15 @@ extension LiveRefreshRef on Ref {
     }
 
     schedule();
-    onDispose(() => timer.cancel());
+    final signals = liveSignals.stream.listen((_) {
+      if (!_appIsVisible) return;
+      timer.cancel();
+      invalidateSelf();
+    });
+    onDispose(() {
+      timer.cancel();
+      signals.cancel();
+    });
   }
 }
 
@@ -44,10 +59,14 @@ class LiveTicker {
   final VoidCallback onTick;
   final Duration every;
   Timer? _timer;
+  StreamSubscription<void>? _signals;
 
   void start() {
-    _timer?.cancel();
+    stop();
     _timer = Timer.periodic(every, (_) {
+      if (_appIsVisible) onTick();
+    });
+    _signals = liveSignals.stream.listen((_) {
       if (_appIsVisible) onTick();
     });
   }
@@ -55,5 +74,7 @@ class LiveTicker {
   void stop() {
     _timer?.cancel();
     _timer = null;
+    _signals?.cancel();
+    _signals = null;
   }
 }

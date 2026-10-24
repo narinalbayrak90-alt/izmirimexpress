@@ -27,6 +27,19 @@ class PickupDropApp extends ConsumerWidget {
     }
   }
 
+  /// Listens on the signed-in customer's own Pusher channel, so their
+  /// order screens update the moment the order changes.
+  static Future<void> _subscribeSignedInCustomer(WidgetRef ref) async {
+    try {
+      final token = await ref.read(secureStorageProvider).readToken();
+      if (token == null || token.isEmpty) return;
+      final channel = (await ref.read(authServiceProvider).getProfile()).liveChannel;
+      if (channel != null) ref.read(liveConnectionProvider).subscribe(channel);
+    } catch (_) {
+      // Offline or signed out: polling still covers it.
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
@@ -39,6 +52,12 @@ class PickupDropApp extends ConsumerWidget {
     ref.listen(appSettingsProvider, (previous, next) {
       final settings = next.valueOrNull;
       if (settings == null) return;
+
+      final liveKey = settings.liveKey, liveCluster = settings.liveCluster;
+      if (liveKey != null && liveCluster != null) {
+        ref.read(liveConnectionProvider).connect(key: liveKey, cluster: liveCluster);
+        _subscribeSignedInCustomer(ref);
+      }
 
       final appId = settings.onesignalAppId;
       if (appId != null && appId.isNotEmpty) {

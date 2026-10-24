@@ -33,15 +33,29 @@ final riderProfileProvider = FutureProvider<RiderProfile>((ref) {
 /// `GET /rider/settings` the same way the User App fetches its own via
 /// `GET /home` (see [PickupRiderApp]'s `ref.listen`).
 class RiderSettings {
-  const RiderSettings({this.onesignalAppId, this.currencySign = '\$', this.currencyPosition = 'left'});
+  const RiderSettings({
+    this.onesignalAppId,
+    this.currencySign = '\$',
+    this.currencyPosition = 'left',
+    this.liveKey,
+    this.liveCluster,
+  });
 
   final String? onesignalAppId;
+
+  /// Pusher key and cluster for instant refresh; null until the admin sets
+  /// them in App Setting > Push Notification > Live Updates.
+  final String? liveKey;
+  final String? liveCluster;
   final String currencySign;
   final String currencyPosition;
 
   factory RiderSettings.fromJson(Map<String, dynamic> json) {
     final sign = json['currency_sign'] as String?;
+    final live = json['live'];
     return RiderSettings(
+      liveKey: live is Map ? live['key'] as String? : null,
+      liveCluster: live is Map ? live['cluster'] as String? : null,
       onesignalAppId: json['onesignal_app_id'] as String?,
       currencySign: (sign == null || sign.isEmpty) ? '\$' : sign,
       currencyPosition: json['currency_position'] as String? ?? 'left',

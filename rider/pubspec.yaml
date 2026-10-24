@@ -48,6 +48,7 @@ dependencies:
   url_launcher: ^6.3.1
   onesignal_flutter: 5.5.2
   intl: ^0.20.2
+  web_socket_channel: ^3.0.3
 
 dev_dependencies:
   flutter_test:
