@@ -22,6 +22,14 @@ jobs:
           done
           echo "== build id"; curl -sS https://izmirimexpress.com/app/.last_build_id || true; echo
           echo "== bootstrap build"; curl -sS https://izmirimexpress.com/app/flutter_bootstrap.js | grep -o 'serviceWorkerVersion[^,]*' | head -2 || true
+      - name: API check
+        run: |
+          # The first request after a deploy also runs pending migrations.
+          for i in 1 2 3 4 5 6; do
+            body=$(curl -sS https://izmirimexpress.com/admin/api/home || true)
+            echo "$body" | python3 -c "import json,sys; d=json.load(sys.stdin)['data']['categories']; print([(c['name'], c.get('is_vip'), c.get('description')) for c in d])" && break
+            echo "$body" | head -c 300; echo; sleep 30
+          done
       - name: Phone browser check
         run: |
           npm i --no-save --silent playwright-core@1.49.1
