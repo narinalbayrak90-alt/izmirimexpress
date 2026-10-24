@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/app_providers.dart';
 import '../../services/rider_order_service.dart';
 import '../../services/rider_withdrawal_service.dart';
+import '../../utils/live_refresh.dart';
 
 /// Today's/lifetime earnings summary — the Earning tab's stat cards.
 final earningsSummaryProvider = FutureProvider.autoDispose<RiderEarningsSummary>((ref) {
+  ref.refreshEvery(const Duration(seconds: 20));
   return ref.watch(riderOrderServiceProvider).earnings();
 });
 
@@ -13,6 +15,7 @@ final earningsSummaryProvider = FutureProvider.autoDispose<RiderEarningsSummary>
 /// the Withdraw button's limit and the Earning tab's "Withdrawal
 /// Requests" list.
 final withdrawalSummaryProvider = FutureProvider.autoDispose<RiderWithdrawalSummary>((ref) {
+  ref.refreshEvery(const Duration(seconds: 20));
   return ref.watch(riderWithdrawalServiceProvider).summary();
 });
 
@@ -21,6 +24,7 @@ final withdrawalSummaryProvider = FutureProvider.autoDispose<RiderWithdrawalSumm
 /// `delivered` only (a cancelled order earned nothing, so it doesn't
 /// belong on an earnings list).
 final recentEarningsProvider = FutureProvider.autoDispose<List<RiderOrderSummary>>((ref) async {
+  ref.refreshEvery(const Duration(seconds: 30));
   final completed = await ref.watch(riderOrderServiceProvider).myOrders(filter: 'completed');
   return completed.where((order) => order.status == 'delivered').toList();
 });

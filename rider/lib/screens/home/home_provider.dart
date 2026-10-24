@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/app_providers.dart';
 import '../../services/rider_auth_service.dart';
 import '../../services/rider_order_service.dart';
+import '../../utils/live_refresh.dart';
 
 /// Tab indices within [HomeScreen]'s [IndexedStack]/bottom nav — a single
 /// source of truth so anything that needs to jump to a specific tab (the
@@ -65,11 +66,13 @@ final riderSettingsProvider = FutureProvider<RiderSettings>((ref) async {
 /// list backing the Home screen's Available Orders section, refreshed
 /// after every accept attempt (win or lose) and by pull-to-refresh.
 final availableOrdersProvider = FutureProvider.autoDispose<List<RiderOrderSummary>>((ref) {
+  ref.refreshEvery();
   return ref.watch(riderOrderServiceProvider).available();
 });
 
 /// This rider's own in-progress orders (rider_assigned/picked_up/
 /// in_transit) — the Home screen's Active Order section.
 final activeOrdersProvider = FutureProvider.autoDispose<List<RiderOrderSummary>>((ref) {
+  ref.refreshEvery();
   return ref.watch(riderOrderServiceProvider).myOrders(filter: 'active');
 });

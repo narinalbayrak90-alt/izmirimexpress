@@ -9,6 +9,7 @@ import '../../services/app_settings.dart';
 import '../../services/order_status.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../utils/live_refresh.dart';
 import '../../widgets/app_loader.dart';
 import '../home/home_provider.dart';
 
@@ -47,15 +48,35 @@ class _MyOrdersScreenState extends ConsumerState<MyOrdersScreen> {
   bool _isLoadingMore = false;
   String? _loadError;
 
+  late final _ticker = LiveTicker(_refreshQuietly);
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     _loadFirstPage();
+    _ticker.start();
+  }
+
+  /// Live update of the first page. Skipped once the customer has scrolled
+  /// into later pages, so the list doesn't jump under them.
+  Future<void> _refreshQuietly() async {
+    if (_isLoading || _isLoadingMore || _page != 1 || _loadError != null) return;
+    try {
+      final result = await ref.read(orderServiceProvider).getOrders(page: 1, filter: _filter);
+      if (!mounted || _page != 1 || _isLoading) return;
+      setState(() {
+        _orders
+          ..clear()
+          ..addAll(result.items);
+        _hasMore = result.hasMore;
+      });
+    } catch (_) {}
   }
 
   @override
   void dispose() {
+    _ticker.stop();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();

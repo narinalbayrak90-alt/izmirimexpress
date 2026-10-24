@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/app_providers.dart';
 import '../../services/app_settings.dart';
 import '../../services/order_status.dart';
+import '../../utils/live_refresh.dart';
 import 'home_category.dart';
 
 /// `GET /home`'s full payload: categories plus the app-wide settings block
@@ -57,6 +58,7 @@ const _activeOrdersCarouselLimit = 5;
 /// as the rest of the app's guest-browsing rule. `autoDispose` so it
 /// re-fetches fresh each time Home mounts instead of holding a stale list.
 final activeOrdersProvider = FutureProvider.autoDispose<List<OrderListItem>>((ref) async {
+  ref.refreshEvery();
   final token = await ref.watch(secureStorageProvider).readToken();
   if (token == null || token.isEmpty) return [];
   final page = await ref.watch(orderServiceProvider).getOrders(page: 1, filter: 'active');

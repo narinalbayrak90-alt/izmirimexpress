@@ -9,6 +9,7 @@ import '../../services/app_settings.dart';
 import '../../services/order_status.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../utils/live_refresh.dart';
 import '../../widgets/app_loader.dart';
 import '../home/home_provider.dart';
 
@@ -31,11 +32,31 @@ class OrderDetailScreen extends ConsumerStatefulWidget {
 class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   OrderStatus? _status;
   String? _loadError;
+  late final _ticker = LiveTicker(_refreshQuietly);
 
   @override
   void initState() {
     super.initState();
     _load();
+    _ticker.start();
+  }
+
+  @override
+  void dispose() {
+    _ticker.stop();
+    super.dispose();
+  }
+
+  /// Live update: keeps the last good status on screen if a poll fails.
+  Future<void> _refreshQuietly() async {
+    try {
+      final status = await ref.read(orderServiceProvider).getOrderStatus(widget.orderId);
+      if (!mounted) return;
+      setState(() {
+        _status = status;
+        _loadError = null;
+      });
+    } catch (_) {}
   }
 
   Future<void> _load() async {
