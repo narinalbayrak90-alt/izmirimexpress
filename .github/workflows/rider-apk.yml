@@ -1,0 +1,83 @@
+# Builds the rider (kurye) app's APK on every push that touches rider/ and
+# publishes it as the repo's latest GitHub release, so testers always
+# download from the same link:
+#   https://github.com/narinalbayrak90-alt/izmirimexpress/releases/latest/download/izmirim-kurye.apk
+# The release also carries version.json, which the installed app checks on
+# launch to offer the newer build (rider/lib/services/app_update_service.dart).
+name: Kurye APK
+
+on:
+  push:
+    paths:
+      - 'rider/**'
+      - '.github/workflows/rider-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rider-apk
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rider
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+
+      - name: Configure
+        env:
+          RIDER_KEYSTORE_BASE64: ${{ secrets.RIDER_KEYSTORE_BASE64 }}
+          RIDER_KEYSTORE_PASSWORD: ${{ secrets.RIDER_KEYSTORE_PASSWORD }}
+          RIDER_KEY_ALIAS: ${{ secrets.RIDER_KEY_ALIAS }}
+        run: |
+          printf 'API_BASE_URL=https://izmirimexpress.com/admin/api\nGOOGLE_MAPS_API_KEY=\nAPP_ENV=production\n' > .env
+          # Real key from repo secrets when set; otherwise the committed
+          # test key, which only keeps test builds installable over each other.
+          if [ -n "$RIDER_KEYSTORE_BASE64" ]; then
+            echo "$RIDER_KEYSTORE_BASE64" | base64 -d > android/signing/release.jks
+            printf 'storeFile=../signing/release.jks\nstorePassword=%s\nkeyPassword=%s\nkeyAlias=%s\n' \
+              "$RIDER_KEYSTORE_PASSWORD" "$RIDER_KEYSTORE_PASSWORD" "$RIDER_KEY_ALIAS" > android/key.properties
+          else
+            printf 'storeFile=../signing/test-release.jks\nstorePassword=izmirimkurye\nkeyPassword=izmirimkurye\nkeyAlias=kurye\n' > android/key.properties
+          fi
+          echo "BUILD=$((100 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
+      - name: Build APK
+        run: |
+          flutter pub get
+          flutter build apk --release \
+            --build-number="$BUILD" --build-name="1.0.$BUILD" \
+            --dart-define=BUILD_NUMBER="$BUILD"
+          mkdir -p out
+          cp build/app/outputs/flutter-apk/app-release.apk out/izmirim-kurye.apk
+          printf '{"build": %s, "version": "1.0.%s", "url": "https://github.com/%s/releases/download/kurye-%s/izmirim-kurye.apk"}\n' \
+            "$BUILD" "$BUILD" "$GITHUB_REPOSITORY" "$BUILD" > out/version.json
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: kurye-${{ env.BUILD }}
+          name: Kurye 1.0.${{ env.BUILD }}
+          target_commitish: ${{ github.sha }}
+          make_latest: 'true'
+          body: |
+            İzmirim Kurye test sürümü 1.0.${{ env.BUILD }} (${{ github.sha }}).
+            Telefona kurmak için izmirim-kurye.apk dosyasını indir.
+          files: |
+            rider/out/izmirim-kurye.apk
+            rider/out/version.json
