@@ -328,6 +328,8 @@ class _CategoryRow extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(category.name, style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+              if (category.description != null)
+                Text(category.description!, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               Text(
                 'booking.delivery_via'.tr(namedArgs: {'vehicle': _vehicleLabel(vehicleType)}),
                 style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),

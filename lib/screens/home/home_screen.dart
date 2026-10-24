@@ -9,6 +9,7 @@ import '../../theme/app_spacing.dart';
 import '../../widgets/app_bottom_nav.dart';
 import '../../widgets/responsive_shell.dart';
 import '../../widgets/app_loader.dart';
+import '../../widgets/category_info_sheet.dart';
 import '../../widgets/install_app.dart';
 import '../booking/booking_providers.dart';
 import '../welcome/welcome_provider.dart';
@@ -228,8 +229,10 @@ class _CategoryGrid extends ConsumerWidget {
 
   /// Tapping a category from Home already answers Step 1 of the booking
   /// flow, so this skips [BookingCategoryScreen] entirely and drops the
-  /// customer straight into Step 2 (Pickup) with the category pre-filled.
-  void _selectCategory(BuildContext context, WidgetRef ref, HomeCategory category) {
+  /// customer straight into Step 2 (Pickup) with the category pre-filled —
+  /// after showing the category's description, when it has one.
+  Future<void> _selectCategory(BuildContext context, WidgetRef ref, HomeCategory category) async {
+    if (!await confirmCategory(context, category) || !context.mounted) return;
     final draft = ref.read(bookingDraftProvider);
     ref.read(bookingDraftProvider.notifier).state = draft.copyWith(category: category);
     context.push('/booking/pickup');
