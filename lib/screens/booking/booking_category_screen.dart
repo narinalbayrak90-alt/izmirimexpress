@@ -103,24 +103,34 @@ class _BookingCategoryScreenState extends ConsumerState<BookingCategoryScreen> {
                                 (constraints.maxWidth -
                                     AppSpacing.sm * (columns - 1)) /
                                 columns;
-                            return Wrap(
-                              alignment: WrapAlignment.start,
-                              spacing: AppSpacing.sm,
-                              runSpacing: AppSpacing.sm,
+                            final selected = items.where((c) => c.id == _selectedCategoryId).firstOrNull;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                for (final category in items)
-                                  SizedBox(
-                                    width: cardWidth,
-                                    height: cardWidth / aspectRatio,
-                                    child: _CategorySelectCard(
-                                      category: category,
-                                      isSelected:
-                                          category.id == _selectedCategoryId,
-                                      onTap: () => setState(
-                                        () => _selectedCategoryId = category.id,
+                                Wrap(
+                                  alignment: WrapAlignment.start,
+                                  spacing: AppSpacing.sm,
+                                  runSpacing: AppSpacing.sm,
+                                  children: [
+                                    for (final category in items)
+                                      SizedBox(
+                                        width: cardWidth,
+                                        height: cardWidth / aspectRatio,
+                                        child: _CategorySelectCard(
+                                          category: category,
+                                          isSelected:
+                                              category.id == _selectedCategoryId,
+                                          onTap: () => setState(
+                                            () => _selectedCategoryId = category.id,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
+                                  ],
+                                ),
+                                if (selected?.description != null) ...[
+                                  const SizedBox(height: AppSpacing.md),
+                                  _CategoryDescription(category: selected!),
+                                ],
                               ],
                             );
                           },
@@ -222,6 +232,44 @@ class _BookingCategoryScreenState extends ConsumerState<BookingCategoryScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// The selected category's description (what fits it), written by the
+/// admin, under the category grid — the cards themselves only have room
+/// for a name.
+class _CategoryDescription extends StatelessWidget {
+  const _CategoryDescription({required this.category});
+
+  final HomeCategory category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.heroBackground,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline_rounded, size: 18, color: AppColors.primaryDark),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: '${category.name}: ', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  TextSpan(text: category.description),
+                ],
+              ),
+              style: const TextStyle(fontSize: 13, height: 1.4, color: AppColors.textPrimary),
+            ),
+          ),
+        ],
       ),
     );
   }

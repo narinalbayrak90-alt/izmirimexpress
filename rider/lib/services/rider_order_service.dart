@@ -23,6 +23,7 @@ class RiderOrderSummary {
     this.paymentMethod,
     required this.createdAt,
     required this.categoryName,
+    this.categoryDescription,
     this.categoryIconUrl,
     required this.pickupAddress,
     required this.dropoffAddress,
@@ -39,6 +40,9 @@ class RiderOrderSummary {
   final String? paymentMethod;
   final DateTime createdAt;
   final String categoryName;
+
+  /// The admin's note on what this category carries; null when empty.
+  final String? categoryDescription;
   final String? categoryIconUrl;
   final String pickupAddress;
   final String dropoffAddress;
@@ -60,6 +64,7 @@ class RiderOrderSummary {
       paymentMethod: json['payment_method'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
       categoryName: category['name'] as String? ?? '',
+      categoryDescription: _nonEmpty(category['description']),
       categoryIconUrl: category['icon'] as String?,
       pickupAddress: json['pickup_address'] as String? ?? '',
       dropoffAddress: json['dropoff_address'] as String? ?? '',
@@ -142,6 +147,7 @@ class RiderOrderDetail {
     required this.deliveryOtpRequired,
     required this.deliveryImageRequired,
     required this.categoryName,
+    this.categoryDescription,
     this.categoryIconUrl,
     required this.pickup,
     required this.dropoff,
@@ -168,6 +174,9 @@ class RiderOrderDetail {
   final bool deliveryOtpRequired;
   final bool deliveryImageRequired;
   final String categoryName;
+
+  /// The admin's note on what this category carries; null when empty.
+  final String? categoryDescription;
   final String? categoryIconUrl;
   final RiderOrderAddress pickup;
   final RiderOrderAddress dropoff;
@@ -196,6 +205,7 @@ class RiderOrderDetail {
       deliveryOtpRequired: json['delivery_otp_required'] as bool,
       deliveryImageRequired: json['delivery_image_required'] as bool,
       categoryName: category['name'] as String? ?? '',
+      categoryDescription: _nonEmpty(category['description']),
       categoryIconUrl: category['icon'] as String?,
       pickup: RiderOrderAddress.fromJson(json['pickup'] as Map<String, dynamic>),
       dropoff: RiderOrderAddress.fromJson(json['dropoff'] as Map<String, dynamic>),
@@ -385,4 +395,9 @@ class RiderOrderService {
     final result = await _apiClient.post('/rider/orders/$orderId/$action', data: data);
     return RiderOrderActionResult.fromJson(result as Map<String, dynamic>);
   }
+}
+
+String? _nonEmpty(Object? value) {
+  final text = value is String ? value.trim() : '';
+  return text.isEmpty ? null : text;
 }

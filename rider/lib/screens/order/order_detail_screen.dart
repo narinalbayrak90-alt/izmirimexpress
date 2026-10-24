@@ -367,6 +367,10 @@ class _EarningCard extends ConsumerWidget {
               Text('${order.distanceKm.toStringAsFixed(1)} km', style: const TextStyle(color: AppColors.textSecondary)),
             ],
           ),
+          if (order.categoryDescription != null) ...[
+            const SizedBox(height: 4),
+            Text(order.categoryDescription!, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          ],
         ],
       ),
     );
