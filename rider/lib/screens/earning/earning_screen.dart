@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../providers/app_providers.dart';
+import '../../services/api_exception.dart';
 import '../../services/rider_order_service.dart';
 import '../../services/rider_withdrawal_service.dart';
 import '../../theme/app_colors.dart';
@@ -11,6 +13,7 @@ import '../../widgets/empty_state.dart';
 import '../../widgets/rider_order_card.dart';
 import '../home/home_provider.dart';
 import 'earning_provider.dart';
+import 'iban_deposit_dialog.dart';
 
 /// Earning tab: today's/lifetime totals, the Withdraw button's requests
 /// (see HomeScreen's app-bar action and `_openWithdrawDialog`), and a
@@ -45,7 +48,7 @@ class EarningScreen extends ConsumerWidget {
               children: [
                 _SummaryCards(summary: data),
                 if (data.cashInHand != null) ...[
-                  if (data.cashInHand! > 0 || data.cashDeposits.isNotEmpty) ...[
+                  if (data.cashInHand! > 0 || data.pendingDeposits > 0 || data.cashDeposits.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.sm),
                     _CashInHandCard(summary: data),
                   ],
@@ -192,6 +195,31 @@ class _CashInHandCard extends ConsumerWidget {
 
   final RiderEarningsSummary summary;
 
+  /// Loads the company IBAN fresh (the office may have just changed it)
+  /// and opens [IbanDepositDialog]; refreshes the summary after a report.
+  Future<void> _openIbanDialog(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final info = await ref.read(riderCashDepositServiceProvider).info();
+      if (!context.mounted) return;
+      if (info.iban == null) {
+        messenger.showSnackBar(SnackBar(content: Text('earning.iban_unavailable'.tr())));
+        return;
+      }
+      if (info.reportable <= 0) {
+        messenger.showSnackBar(SnackBar(content: Text('earning.iban_nothing_to_report'.tr())));
+        return;
+      }
+      final reported = await showDialog<bool>(context: context, builder: (_) => IbanDepositDialog(info: info));
+      if (reported == true) {
+        ref.invalidate(earningsSummaryProvider);
+        messenger.showSnackBar(SnackBar(content: Text('earning.iban_reported'.tr())));
+      }
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currency = ref.watch(riderSettingsProvider).valueOrNull ?? const RiderSettings();
@@ -235,11 +263,31 @@ class _CashInHandCard extends ConsumerWidget {
                         style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ],
+                    if (summary.pendingDeposits > 0) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'earning.cash_pending_iban'.tr(namedArgs: {'amount': currency.format(summary.pendingDeposits)}),
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.primaryDark),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ],
           ),
+          if (owes) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'earning.cash_how_to_settle'.tr(),
+              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.4),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: () => _openIbanDialog(context, ref),
+              icon: const Icon(Icons.account_balance_outlined, size: 18),
+              label: Text('earning.iban_pay'.tr()),
+            ),
+          ],
           if (summary.cashDeposits.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             const Divider(height: 1),
@@ -255,9 +303,26 @@ class _CashInHandCard extends ConsumerWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        deposit.createdAt == null ? '—' : DateFormat('d MMM y, HH:mm').format(deposit.createdAt!),
-                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            deposit.createdAt == null ? '—' : DateFormat('d MMM y, HH:mm').format(deposit.createdAt!),
+                            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          ),
+                          Text(
+                            '${'earning.deposit_method.${deposit.method}'.tr()} · ${'earning.deposit_status.${deposit.status}'.tr()}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: switch (deposit.status) {
+                                'pending' => AppColors.primaryDark,
+                                'rejected' => AppColors.error,
+                                _ => AppColors.success,
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Text(
