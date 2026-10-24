@@ -7,6 +7,7 @@ on:
   push:
     paths:
       - '.github/workflows/site-check.yml'
+      - 'tool/ci/**'
   workflow_dispatch:
 
 jobs:
@@ -20,3 +21,11 @@ jobs:
           done
           echo "== build id"; curl -sS https://izmirimexpress.com/app/.last_build_id || true; echo
           echo "== bootstrap build"; curl -sS https://izmirimexpress.com/app/flutter_bootstrap.js | grep -o 'serviceWorkerVersion[^,]*' | head -2 || true
+      - name: Phone browser check
+        run: |
+          npm i --no-save --silent playwright-core@1.49.1
+          node tool/ci/live_check.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: live-screenshot
+          path: live.png
