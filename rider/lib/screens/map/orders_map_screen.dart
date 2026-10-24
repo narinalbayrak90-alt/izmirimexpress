@@ -8,6 +8,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../providers/app_providers.dart';
 import '../../services/rider_order_service.dart';
+import '../../services/tour_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/order_map_pins.dart';
@@ -20,6 +21,9 @@ import '../home/home_provider.dart';
 ///   drop-off pin, joined by the road between them.
 /// - Own orders already picked up: only the green drop-off pin is left.
 /// - New orders (online only): a blue pin at the pickup.
+/// - With two or more own orders, those stops come from the planned tour
+///   instead: numbered pins in visiting order and one road line through
+///   them (see TourService).
 ///
 /// Tapping a pin shows its address; tapping that bubble opens the order,
 /// where it can be accepted or worked as usual. The lists refresh every
@@ -40,6 +44,10 @@ class _OrdersMapScreenState extends ConsumerState<OrdersMapScreen> {
   /// changes, so a background refresh doesn't yank the map away from
   /// wherever the rider has panned it.
   String _fittedTo = '';
+
+  /// Numbered tour pins, drawn on first use (see OrderMapPins.numbered).
+  final _pins = <String, BitmapDescriptor>{};
+  final _drawingPins = <String>{};
 
   @override
   void initState() {
@@ -68,9 +76,58 @@ class _OrdersMapScreenState extends ConsumerState<OrdersMapScreen> {
 
   void _open(int orderId) => context.push('/orders/$orderId');
 
-  ({Set<Marker> markers, Set<Polyline> lines}) _build(List<RiderOrderSummary> active, List<RiderOrderSummary> available) {
+  BitmapDescriptor? _pin(TourStop stop) {
+    final key = '${stop.position}-${stop.isPickup}';
+    final pin = _pins[key];
+    if (pin == null && _drawingPins.add(key)) {
+      OrderMapPins.numbered(stop.position, pickup: stop.isPickup).then((drawn) {
+        if (mounted) setState(() => _pins[key] = drawn);
+      });
+    }
+    return pin;
+  }
+
+  /// With two or more orders the stops come from the planned tour: numbered
+  /// in the order to visit them and joined by one road line.
+  void _addTour(RiderTour tour, Set<Marker> markers, Set<Polyline> lines) {
+    for (final stop in tour.stops) {
+      final pin = _pin(stop);
+      markers.add(Marker(
+        markerId: MarkerId('t${stop.key}'),
+        position: stop.location,
+        icon: pin ?? (stop.isPickup ? OrderMapPins.pickup : OrderMapPins.dropoff),
+        anchor: pin == null ? const Offset(0.5, 1) : const Offset(0.5, 0.5),
+        zIndexInt: 100 - stop.position,
+        infoWindow: InfoWindow(
+          title: '${stop.position}. ${stop.isPickup ? 'tour.pickup'.tr() : 'tour.dropoff'.tr()} · #${stop.orderId}',
+          snippet: stop.address,
+          onTap: () => _open(stop.orderId),
+        ),
+      ));
+    }
+
+    final road = tour.line;
+    lines.add(Polyline(
+      polylineId: const PolylineId('tour'),
+      points: road ?? tour.stops.map((s) => s.location).toList(),
+      color: AppColors.primaryDark,
+      width: 5,
+      patterns: road == null ? [PatternItem.dash(20), PatternItem.gap(12)] : const [],
+    ));
+  }
+
+  ({Set<Marker> markers, Set<Polyline> lines}) _build(
+    List<RiderOrderSummary> active,
+    List<RiderOrderSummary> available,
+    RiderTour? tour,
+  ) {
     final markers = <Marker>{};
     final lines = <Polyline>{};
+
+    if (tour != null && tour.isMultiOrder) {
+      _addTour(tour, markers, lines);
+      active = const [];
+    }
 
     for (final order in active) {
       final pickup = order.pickupLocation, dropoff = order.dropoffLocation;
@@ -153,7 +210,8 @@ class _OrdersMapScreenState extends ConsumerState<OrdersMapScreen> {
     final active = ref.watch(activeOrdersProvider);
     final available = isOnline ? ref.watch(availableOrdersProvider) : const AsyncValue<List<RiderOrderSummary>>.data([]);
 
-    final (:markers, :lines) = _build(active.valueOrNull ?? const [], available.valueOrNull ?? const []);
+    final tour = ref.watch(tourProvider).valueOrNull;
+    final (:markers, :lines) = _build(active.valueOrNull ?? const [], available.valueOrNull ?? const [], tour);
     final loading = active.isLoading || available.isLoading;
     WidgetsBinding.instance.addPostFrameCallback((_) => _fit(markers));
 

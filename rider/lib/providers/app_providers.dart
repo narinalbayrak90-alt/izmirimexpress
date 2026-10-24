@@ -21,6 +21,7 @@ import '../services/rider_withdrawal_service.dart';
 import '../services/secure_storage_service.dart';
 import '../services/support_service.dart';
 import '../services/live_connection.dart';
+import '../services/tour_service.dart';
 
 /// App-wide providers. Kept as plain [Provider]s (no code generation) so the
 /// wiring stays readable for buyers extending this codebase — same
@@ -126,3 +127,5 @@ final roadRouteProvider = FutureProvider.autoDispose.family<List<LatLng>, (LatLn
 /// The app's one Pusher connection (see LiveConnection), connected once the
 /// settings carry a Pusher key.
 final liveConnectionProvider = Provider<LiveConnection>((ref) => LiveConnection());
+
+final tourServiceProvider = Provider<TourService>((ref) => TourService(ref.watch(apiClientProvider)));

@@ -19,6 +19,7 @@ import '../../widgets/order_map_pins.dart';
 import '../../widgets/primary_button.dart';
 import '../home/home_provider.dart';
 import 'order_detail_provider.dart';
+import '../home/tour_card.dart';
 
 /// Full order detail and the rider-driven half of the delivery lifecycle:
 /// confirmed -[accept]-> rider_assigned -[pickup]-> picked_up
@@ -97,10 +98,12 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   }
 
   Future<void> _accept() async {
+    final message = await acceptConfirmMessage(ref, widget.orderId);
+    if (!mounted) return;
     final confirmed = await confirmDialog(
       context,
       title: 'order_detail.accept_confirm_title'.tr(),
-      message: 'order_detail.accept_confirm_message'.tr(),
+      message: message,
       confirmLabel: 'home.accept'.tr(),
     );
     if (!mounted || !confirmed) return;

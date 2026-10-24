@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../providers/app_providers.dart';
 import '../../services/rider_auth_service.dart';
 import '../../services/rider_order_service.dart';
+import '../../services/tour_service.dart';
 import '../../utils/live_refresh.dart';
 
 /// Tab indices within [HomeScreen]'s [IndexedStack]/bottom nav — a single
@@ -89,4 +91,16 @@ final availableOrdersProvider = FutureProvider.autoDispose<List<RiderOrderSummar
 final activeOrdersProvider = FutureProvider.autoDispose<List<RiderOrderSummary>>((ref) {
   ref.refreshEvery();
   return ref.watch(riderOrderServiceProvider).myOrders(filter: 'active');
+});
+
+/// The rider's planned tour (see TourService). Only fetched while they work
+/// two or more orders; it re-plans whenever the active orders reload, which
+/// is every refresh, every push and every accept or delivery.
+final tourProvider = FutureProvider.autoDispose<RiderTour>((ref) async {
+  final active = await ref.watch(activeOrdersProvider.future);
+  if (active.length < 2) return RiderTour.empty;
+  final position = ref.read(riderLocationTrackerProvider).lastPosition;
+  return ref.read(tourServiceProvider).tour(
+        from: position == null ? null : LatLng(position.latitude, position.longitude),
+      );
 });

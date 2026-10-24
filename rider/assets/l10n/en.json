@@ -326,5 +326,27 @@
     "tap_for_detail": "Tap for details",
     "empty": "No orders to show on the map right now.",
     "empty_offline": "You have no orders. Go online to see new orders."
+  },
+  "tour": {
+    "title": "Your route",
+    "summary": "{stops} stops · {km} km · about {min} min",
+    "next": "Next stop",
+    "pickup": "Pickup",
+    "dropoff": "Drop-off",
+    "order": "Order #{id}",
+    "eta": "Arriving around {time}",
+    "navigate": "Directions",
+    "open_order": "Open order",
+    "call": "Call",
+    "not_ready": "Not ready",
+    "not_ready_title": "Parcel not ready?",
+    "not_ready_message": "Leave this pickup for 10 minutes and go to your other stops first?",
+    "not_ready_confirm": "Come back later",
+    "not_ready_done": "Pickup moved back by 10 minutes.",
+    "waiting_until": "Ready after {time}",
+    "delay_warning": "In this order some deliveries may be later than usual.",
+    "preview": "Adds about {min} min and {km} km to your route.",
+    "preview_warning": "Careful: this order may delay one of the orders you are carrying.",
+    "legend": "Route order"
   }
 }

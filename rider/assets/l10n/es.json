@@ -296,5 +296,27 @@
     "tap_for_detail": "Toca para ver detalles",
     "empty": "No hay pedidos para mostrar en el mapa.",
     "empty_offline": "No tienes pedidos. Conéctate para ver pedidos nuevos."
+  },
+  "tour": {
+    "title": "Tu ruta",
+    "summary": "{stops} paradas · {km} km · unos {min} min",
+    "next": "Próxima parada",
+    "pickup": "Recogida",
+    "dropoff": "Entrega",
+    "order": "Pedido #{id}",
+    "eta": "Llegada aprox. {time}",
+    "navigate": "Cómo llegar",
+    "open_order": "Abrir pedido",
+    "call": "Llamar",
+    "not_ready": "No está listo",
+    "not_ready_title": "¿El paquete no está listo?",
+    "not_ready_message": "¿Dejamos esta recogida 10 minutos y vas primero a tus otras paradas?",
+    "not_ready_confirm": "Volver luego",
+    "not_ready_done": "Recogida aplazada 10 minutos.",
+    "waiting_until": "Listo después de las {time}",
+    "delay_warning": "En este orden algunas entregas pueden llegar más tarde de lo normal.",
+    "preview": "Añade unos {min} min y {km} km a tu ruta.",
+    "preview_warning": "Atención: este pedido puede retrasar uno de los que llevas.",
+    "legend": "Orden de ruta"
   }
 }

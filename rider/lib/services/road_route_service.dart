@@ -40,7 +40,7 @@ class RoadRouteService {
       final overview = first is Map ? first['overview_polyline'] : null;
       final encoded = overview is Map ? overview['points'] : null;
       if (encoded is String && encoded.isNotEmpty) {
-        return _cache[key] = _decode(encoded);
+        return _cache[key] = decode(encoded);
       }
     } catch (_) {
       // Fall through to the straight line.
@@ -52,7 +52,7 @@ class RoadRouteService {
 
   /// Google's encoded polyline format
   /// (developers.google.com/maps/documentation/utilities/polylinealgorithm).
-  static List<LatLng> _decode(String encoded) {
+  static List<LatLng> decode(String encoded) {
     final points = <LatLng>[];
     var index = 0, lat = 0, lng = 0;
 

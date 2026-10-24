@@ -20,6 +20,7 @@ import '../earning/withdraw_dialog.dart';
 import '../history/history_screen.dart';
 import '../map/orders_map_screen.dart';
 import 'home_provider.dart';
+import 'tour_card.dart';
 
 /// The app's bottom-nav shell: Home / Map / History / Earning / Account, all
 /// kept alive together in an [IndexedStack] (not separate routes) so
@@ -190,10 +191,12 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
   }
 
   Future<void> _accept(RiderOrderSummary order) async {
+    final message = await acceptConfirmMessage(ref, order.id);
+    if (!mounted) return;
     final confirmed = await confirmDialog(
       context,
       title: 'order_detail.accept_confirm_title'.tr(),
-      message: 'order_detail.accept_confirm_message'.tr(),
+      message: message,
       confirmLabel: 'home.accept'.tr(),
     );
     if (!mounted || !confirmed) return;
@@ -284,6 +287,7 @@ class _HomeTabState extends ConsumerState<_HomeTab> {
             const SizedBox(height: AppSpacing.xl),
             Text('home.active_orders_title'.tr(), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18)),
             const SizedBox(height: AppSpacing.sm),
+            const TourCard(),
             _ActiveOrdersSection(),
             // New/available orders are only relevant while the rider is
             // online — showing (or fetching) them while offline would let

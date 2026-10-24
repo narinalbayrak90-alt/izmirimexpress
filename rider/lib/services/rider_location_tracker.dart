@@ -32,6 +32,10 @@ class RiderLocationTracker {
   Timer? _pushTimer;
   Position? _lastPosition;
 
+  /// The latest fix while online, for requests that plan from where the
+  /// rider is right now (the tour).
+  Position? get lastPosition => _lastPosition;
+
   void start() {
     stop();
 

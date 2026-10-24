@@ -326,5 +326,27 @@
     "tap_for_detail": "Detay için dokunun",
     "empty": "Şu an haritada gösterilecek sipariş yok.",
     "empty_offline": "Üzerinizde sipariş yok. Yeni siparişleri görmek için çevrimiçi olun."
+  },
+  "tour": {
+    "title": "Turunuz",
+    "summary": "{stops} durak · {km} km · yaklaşık {min} dk",
+    "next": "Sıradaki durak",
+    "pickup": "Alım",
+    "dropoff": "Teslim",
+    "order": "Sipariş #{id}",
+    "eta": "Tahmini varış {time}",
+    "navigate": "Yol tarifi",
+    "open_order": "Siparişi aç",
+    "call": "Ara",
+    "not_ready": "Hazır değil",
+    "not_ready_title": "Paket hazır değil mi?",
+    "not_ready_message": "Bu alımı 10 dakika sonraya bırakıp sizi önce diğer duraklara yönlendirelim mi?",
+    "not_ready_confirm": "Sonraya bırak",
+    "not_ready_done": "Alım 10 dakika sonraya bırakıldı.",
+    "waiting_until": "{time} sonrası hazır",
+    "delay_warning": "Bu sırayla bazı siparişler normalden geç teslim edilebilir.",
+    "preview": "Turunuza yaklaşık {min} dk ve {km} km ekler.",
+    "preview_warning": "Dikkat: bu sipariş elinizdeki siparişlerden birini geciktirebilir.",
+    "legend": "Tur sırası"
   }
 }
