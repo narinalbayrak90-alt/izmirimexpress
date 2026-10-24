@@ -227,6 +227,7 @@
     "otp": {
       "title": "Verifica tu correo electrónico",
       "subtitle_generic": "Ingresa el código de 6 dígitos que te enviamos.",
+      "subtitle_email": "Ingresa el código de 6 dígitos que enviamos a tu correo.",
       "subtitle_with_identifier": "Ingresa el código de 6 dígitos que enviamos a {identifier}.",
       "new_password_label": "Nueva contraseña",
       "new_password_hint": "Crea una nueva contraseña",
@@ -318,5 +319,20 @@
     "preview": "Añade unos {min} min y {km} km a tu ruta.",
     "preview_warning": "Atención: este pedido puede retrasar uno de los que llevas.",
     "legend": "Orden de ruta"
+  },
+  "iban": {
+    "title": "Datos de IBAN",
+    "subtitle": "Tus ganancias se pagan a esta cuenta. Debe estar a tu nombre.",
+    "iban_label": "IBAN",
+    "holder_label": "Titular de la cuenta",
+    "iban_required": "Introduce tu IBAN",
+    "iban_invalid": "Introduce un IBAN TR válido (TR + 24 dígitos)",
+    "holder_required": "Introduce el nombre del titular",
+    "save": "Guardar",
+    "saved": "IBAN guardado",
+    "not_set": "No añadido",
+    "add": "Añadir IBAN",
+    "withdraw_missing": "Añade un IBAN antes de retirar.",
+    "withdraw_to": "Se paga a: {iban}"
   }
 }

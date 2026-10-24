@@ -257,6 +257,7 @@
     "otp": {
       "title": "E-postanı Doğrula",
       "subtitle_generic": "Sana gönderdiğimiz 6 haneli kodu gir.",
+      "subtitle_email": "E-posta adresine gönderdiğimiz 6 haneli kodu gir.",
       "subtitle_with_identifier": "{identifier} adresine gönderdiğimiz 6 haneli kodu gir.",
       "new_password_label": "Yeni Şifre",
       "new_password_hint": "Yeni bir şifre oluştur",
@@ -348,5 +349,20 @@
     "preview": "Turunuza yaklaşık {min} dk ve {km} km ekler.",
     "preview_warning": "Dikkat: bu sipariş elinizdeki siparişlerden birini geciktirebilir.",
     "legend": "Tur sırası"
+  },
+  "iban": {
+    "title": "IBAN Bilgileri",
+    "subtitle": "Hak edişlerin bu hesaba gönderilir. Hesap senin adına olmalı.",
+    "iban_label": "IBAN",
+    "holder_label": "Hesap sahibi (ad soyad)",
+    "iban_required": "IBAN gir",
+    "iban_invalid": "Geçerli bir TR IBAN gir (TR + 24 rakam)",
+    "holder_required": "Hesap sahibinin adını gir",
+    "save": "Kaydet",
+    "saved": "IBAN kaydedildi",
+    "not_set": "Eklenmedi",
+    "add": "IBAN ekle",
+    "withdraw_missing": "Para çekmek için önce IBAN eklemelisin.",
+    "withdraw_to": "Gönderilecek hesap: {iban}"
   }
 }

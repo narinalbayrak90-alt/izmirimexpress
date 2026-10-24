@@ -55,6 +55,11 @@ const Map<String, _PaymentMethodInfo> _methodInfo = {
     titleKey: 'booking.payment_cod_title',
     subtitleKey: 'booking.payment_cod_subtitle',
   ),
+  'paytr': _PaymentMethodInfo(
+    icon: Icons.credit_card_rounded,
+    titleKey: 'booking.payment_paytr_title',
+    subtitleKey: 'booking.payment_paytr_subtitle',
+  ),
   'stripe': _PaymentMethodInfo(
     icon: Icons.credit_card_rounded,
     titleKey: 'booking.payment_stripe_title',
@@ -163,7 +168,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
       await _payWithStripe(draft, estimate);
     } else if (method == 'razorpay') {
       await _payWithRazorpay(draft, estimate);
-    } else if (method == 'stripe' || method == 'paystack' || method == 'flutterwave') {
+    } else if (method == 'stripe' || method == 'paystack' || method == 'flutterwave' || method == 'paytr') {
       await _payWithHostedCheckout(draft, estimate, method);
     }
   }
@@ -179,6 +184,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
     String? razorpaySignature,
     String? paystackReference,
     String? flutterwaveReference,
+    String? paytrReference,
   }) async {
     setState(() => _isSubmitting = true);
     try {
@@ -196,6 +202,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
             razorpaySignature: razorpaySignature,
             paystackReference: paystackReference,
             flutterwaveReference: flutterwaveReference,
+            paytrReference: paytrReference,
           );
       if (!mounted) return;
       await _onOrderPlaced(order);
@@ -332,6 +339,12 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
             dropoff: draft.dropoff!,
             couponCode: estimate.appliedCoupon?.code,
           ),
+        'paytr' => await payment.createPaytrCheckout(
+            categoryId: draft.category!.id,
+            pickup: draft.pickup!,
+            dropoff: draft.dropoff!,
+            couponCode: estimate.appliedCoupon?.code,
+          ),
         'paystack' => await payment.createPaystackCheckout(
             categoryId: draft.category!.id,
             pickup: draft.pickup!,
@@ -367,6 +380,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
         stripeCheckoutSessionId: method == 'stripe' ? checkout.reference : null,
         paystackReference: method == 'paystack' ? checkout.reference : null,
         flutterwaveReference: method == 'flutterwave' ? checkout.reference : null,
+        paytrReference: method == 'paytr' ? checkout.reference : null,
       );
     } on ApiException catch (e) {
       if (!mounted) return;

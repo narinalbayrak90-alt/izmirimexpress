@@ -257,6 +257,7 @@
     "otp": {
       "title": "Verify Your Email",
       "subtitle_generic": "Enter the 6-digit code we sent you.",
+      "subtitle_email": "Enter the 6-digit code we sent to your email.",
       "subtitle_with_identifier": "Enter the 6-digit code we sent to {identifier}.",
       "new_password_label": "New Password",
       "new_password_hint": "Create a new password",
@@ -348,5 +349,20 @@
     "preview": "Adds about {min} min and {km} km to your route.",
     "preview_warning": "Careful: this order may delay one of the orders you are carrying.",
     "legend": "Route order"
+  },
+  "iban": {
+    "title": "IBAN details",
+    "subtitle": "Your earnings are paid to this account. It must be in your name.",
+    "iban_label": "IBAN",
+    "holder_label": "Account holder (full name)",
+    "iban_required": "Enter your IBAN",
+    "iban_invalid": "Enter a valid TR IBAN (TR + 24 digits)",
+    "holder_required": "Enter the account holder's name",
+    "save": "Save",
+    "saved": "IBAN saved",
+    "not_set": "Not added",
+    "add": "Add IBAN",
+    "withdraw_missing": "Add an IBAN before withdrawing.",
+    "withdraw_to": "Paid to: {iban}"
   }
 }

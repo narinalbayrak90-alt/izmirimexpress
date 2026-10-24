@@ -15,6 +15,8 @@ import '../../widgets/auth_badge.dart';
 import '../../widgets/document_picker.dart';
 import '../../widgets/primary_button.dart';
 import '../welcome/welcome_provider.dart';
+import '../../utils/iban.dart';
+import '../account/iban_sheet.dart';
 
 /// Rider App signup: name/email/phone/password, vehicle type + number, and
 /// optional photo/driving-license/ID-proof uploads — everything
@@ -40,6 +42,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _vehicleNumberController = TextEditingController();
+  final _ibanController = TextEditingController();
+  final _ibanHolderController = TextEditingController();
 
   String? _vehicleType;
   File? _photo;
@@ -56,6 +60,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     _vehicleNumberController.dispose();
+    _ibanController.dispose();
+    _ibanHolderController.dispose();
     super.dispose();
   }
 
@@ -122,6 +128,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             password: _passwordController.text,
             vehicleType: _vehicleType!,
             vehicleNumber: _vehicleNumberController.text.trim(),
+            iban: normalizeIban(_ibanController.text),
+            ibanHolder: _ibanHolderController.text.trim(),
             photoPath: _photo?.path,
             drivingLicensePath: _drivingLicense?.path,
             idProofPath: _idProof?.path,
@@ -283,6 +291,18 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 prefixIcon: const Icon(Icons.directions_car_filled_outlined),
               ),
             ),
+            const SizedBox(height: AppSpacing.xl),
+            Text(
+              'iban.title'.tr(),
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontSize: 18),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'iban.subtitle'.tr(),
+              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            IbanFields(ibanController: _ibanController, holderController: _ibanHolderController, required: true),
             const SizedBox(height: AppSpacing.xl),
             Text(
               'auth.signup.documents_title'.tr(),

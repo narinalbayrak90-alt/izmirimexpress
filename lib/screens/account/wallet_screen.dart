@@ -27,6 +27,7 @@ const _presetAmounts = [20, 50, 100, 500];
 /// `PaymentMethodScreen`'s `_methodInfo`, minus Cash on Delivery (a
 /// recharge always needs an online payment).
 const Map<String, ({IconData icon, String titleKey, String subtitleKey})> _gatewayInfo = {
+  'paytr': (icon: Icons.credit_card_rounded, titleKey: 'booking.payment_paytr_title', subtitleKey: 'booking.payment_paytr_subtitle'),
   'stripe': (icon: Icons.credit_card_rounded, titleKey: 'booking.payment_stripe_title', subtitleKey: 'booking.payment_stripe_subtitle'),
   'razorpay': (icon: Icons.account_balance_wallet_outlined, titleKey: 'booking.payment_razorpay_title', subtitleKey: 'booking.payment_razorpay_subtitle'),
   'paystack': (icon: Icons.account_balance_outlined, titleKey: 'booking.payment_paystack_title', subtitleKey: 'booking.payment_paystack_subtitle'),
@@ -35,7 +36,7 @@ const Map<String, ({IconData icon, String titleKey, String subtitleKey})> _gatew
 
 /// The online gateways a wallet recharge can use — every enabled payment
 /// method except Cash on Delivery.
-const _rechargeGateways = {'stripe', 'razorpay', 'paystack', 'flutterwave'};
+const _rechargeGateways = {'paytr', 'stripe', 'razorpay', 'paystack', 'flutterwave'};
 
 /// Wallet screen (project.txt Module 12) — balance header, a Recharge tab
 /// (preset/custom amount + Stripe/Razorpay) and a History tab (every
@@ -270,6 +271,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
       final wallet = ref.read(walletServiceProvider);
       final checkout = switch (method) {
         'stripe' => await wallet.createStripeCheckout(amount),
+        'paytr' => await wallet.createPaytrCheckout(amount),
         'paystack' => await wallet.createPaystackCheckout(amount),
         _ => await wallet.createFlutterwaveCheckout(amount),
       };
@@ -291,6 +293,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
         stripeCheckoutSessionId: method == 'stripe' ? checkout.reference : null,
         paystackReference: method == 'paystack' ? checkout.reference : null,
         flutterwaveReference: method == 'flutterwave' ? checkout.reference : null,
+        paytrReference: method == 'paytr' ? checkout.reference : null,
       );
     } on ApiException catch (e) {
       if (!mounted) return;
@@ -308,6 +311,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
     String? razorpaySignature,
     String? paystackReference,
     String? flutterwaveReference,
+    String? paytrReference,
   }) async {
     try {
       final balance = await ref.read(walletServiceProvider).recharge(
@@ -319,6 +323,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
             razorpaySignature: razorpaySignature,
             paystackReference: paystackReference,
             flutterwaveReference: flutterwaveReference,
+            paytrReference: paytrReference,
           );
       if (!mounted) return;
       setState(() {

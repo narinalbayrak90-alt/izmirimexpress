@@ -59,6 +59,7 @@
     "otp": {
       "title": "تحقق من حسابك",
       "subtitle_generic": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إليك.",
+      "subtitle_email": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.",
       "subtitle_with_identifier": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى {identifier}.",
       "new_password_label": "كلمة المرور الجديدة",
       "new_password_hint": "أدخل كلمة مرور جديدة",
@@ -142,6 +143,8 @@
     "payment_stripe_subtitle": "ادفع بأمان عبر Stripe",
     "payment_razorpay_title": "Razorpay",
     "payment_razorpay_subtitle": "ادفع عبر UPI والبطاقات والمحافظ الإلكترونية والمزيد",
+    "payment_paytr_title": "بطاقة ائتمان / خصم",
+    "payment_paytr_subtitle": "ادفع بالبطاقة عبر PayTR الآمن",
     "payment_paystack_title": "Paystack",
     "payment_paystack_subtitle": "ادفع بالبطاقة أو التحويل المصرفي أو USSD والمزيد",
     "payment_flutterwave_title": "Flutterwave",

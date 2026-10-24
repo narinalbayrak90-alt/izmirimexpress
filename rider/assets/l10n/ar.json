@@ -227,6 +227,7 @@
     "otp": {
       "title": "تحقق من بريدك الإلكتروني",
       "subtitle_generic": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه لك.",
+      "subtitle_email": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.",
       "subtitle_with_identifier": "أدخل الرمز المكوّن من 6 أرقام الذي أرسلناه إلى {identifier}.",
       "new_password_label": "كلمة المرور الجديدة",
       "new_password_hint": "أنشئ كلمة مرور جديدة",
@@ -318,5 +319,20 @@
     "preview": "يضيف حوالي {min} دقيقة و{km} كم إلى مسارك.",
     "preview_warning": "تنبيه: قد يؤخر هذا الطلب أحد الطلبات التي تحملها.",
     "legend": "ترتيب المسار"
+  },
+  "iban": {
+    "title": "بيانات IBAN",
+    "subtitle": "تُحوَّل أرباحك إلى هذا الحساب. يجب أن يكون باسمك.",
+    "iban_label": "IBAN",
+    "holder_label": "صاحب الحساب (الاسم الكامل)",
+    "iban_required": "أدخل رقم IBAN",
+    "iban_invalid": "أدخل IBAN تركي صالح (TR + 24 رقمًا)",
+    "holder_required": "أدخل اسم صاحب الحساب",
+    "save": "حفظ",
+    "saved": "تم حفظ IBAN",
+    "not_set": "غير مضاف",
+    "add": "إضافة IBAN",
+    "withdraw_missing": "أضف IBAN قبل السحب.",
+    "withdraw_to": "يُحوَّل إلى: {iban}"
   }
 }

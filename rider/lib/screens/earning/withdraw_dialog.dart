@@ -7,6 +7,8 @@ import '../../services/api_exception.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../widgets/app_loader.dart';
+import '../../utils/iban.dart';
+import '../account/iban_sheet.dart';
 import '../home/home_provider.dart';
 
 /// Amount-entry dialog for the Earning tab's Withdraw action — capped at
@@ -54,6 +56,7 @@ class _WithdrawDialogState extends ConsumerState<WithdrawDialog> {
   @override
   Widget build(BuildContext context) {
     final currency = ref.watch(riderSettingsProvider).valueOrNull ?? const RiderSettings();
+    final rider = ref.watch(riderProfileProvider).valueOrNull;
 
     return AlertDialog(
       title: Text('earning.withdraw_dialog_title'.tr()),
@@ -67,6 +70,24 @@ class _WithdrawDialogState extends ConsumerState<WithdrawDialog> {
               'earning.withdraw_available_balance'.tr(namedArgs: {'amount': currency.format(widget.availableBalance)}),
               style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            if (rider != null && rider.iban == null)
+              Row(
+                children: [
+                  Expanded(
+                    child: Text('iban.withdraw_missing'.tr(), style: const TextStyle(fontSize: 13, color: AppColors.error)),
+                  ),
+                  TextButton(
+                    onPressed: () => showIbanSheet(context),
+                    child: Text('iban.add'.tr()),
+                  ),
+                ],
+              )
+            else if (rider?.iban != null)
+              Text(
+                'iban.withdraw_to'.tr(namedArgs: {'iban': formatIban(rider!.iban!)}),
+                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              ),
             const SizedBox(height: AppSpacing.md),
             TextFormField(
               controller: _amountController,

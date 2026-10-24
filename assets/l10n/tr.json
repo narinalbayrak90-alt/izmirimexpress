@@ -59,6 +59,7 @@
     "otp": {
       "title": "Hesabınızı Doğrulayın",
       "subtitle_generic": "Size gönderdiğimiz 6 haneli kodu girin.",
+      "subtitle_email": "E-posta adresine gönderdiğimiz 6 haneli kodu gir.",
       "subtitle_with_identifier": "{identifier} adresine gönderdiğimiz 6 haneli kodu girin.",
       "new_password_label": "Yeni Şifre",
       "new_password_hint": "Yeni bir şifre girin",
@@ -142,6 +143,8 @@
     "payment_stripe_subtitle": "Stripe ile güvenle ödeyin",
     "payment_razorpay_title": "Razorpay",
     "payment_razorpay_subtitle": "UPI, kart, cüzdan ve daha fazlasıyla ödeyin",
+    "payment_paytr_title": "Kredi / banka kartı",
+    "payment_paytr_subtitle": "PayTR güvenli ödeme ile kartınızdan ödeyin",
     "payment_paystack_title": "Paystack",
     "payment_paystack_subtitle": "Kart, havale, USSD ve daha fazlasıyla ödeyin",
     "payment_flutterwave_title": "Flutterwave",

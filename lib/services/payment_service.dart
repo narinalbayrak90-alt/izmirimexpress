@@ -55,8 +55,8 @@ class GatewayCheckout {
     return GatewayCheckout(
       authorizationUrl: json['authorization_url'] as String,
       // Paystack returns `reference`, Flutterwave `tx_ref`, Stripe
-      // Checkout `checkout_session_id`.
-      reference: (json['reference'] ?? json['tx_ref'] ?? json['checkout_session_id']) as String,
+      // Checkout `checkout_session_id`, PayTR `paytr_reference`.
+      reference: (json['reference'] ?? json['tx_ref'] ?? json['checkout_session_id'] ?? json['paytr_reference']) as String,
       payableAmount: (json['payable_amount'] as num).toDouble(),
     );
   }
@@ -155,6 +155,17 @@ class PaymentService {
     String? couponCode,
   }) async {
     final data = await _apiClient.post('/payment/paystack/initialize', data: _priceRequest(categoryId, pickup, dropoff, couponCode));
+    return GatewayCheckout.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// Starts a PayTR card payment — same flow as [createPaystackCheckout].
+  Future<GatewayCheckout> createPaytrCheckout({
+    required int categoryId,
+    required BookingAddress pickup,
+    required BookingAddress dropoff,
+    String? couponCode,
+  }) async {
+    final data = await _apiClient.post('/payment/paytr/start', data: _priceRequest(categoryId, pickup, dropoff, couponCode));
     return GatewayCheckout.fromJson(data as Map<String, dynamic>);
   }
 

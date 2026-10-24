@@ -105,6 +105,13 @@ class WalletService {
     return GatewayCheckout.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Starts a PayTR card payment for a wallet recharge — same flow as
+  /// [createPaystackCheckout].
+  Future<GatewayCheckout> createPaytrCheckout(double amount) async {
+    final data = await _apiClient.post('/wallet/recharge/paytr/start', data: {'amount': amount});
+    return GatewayCheckout.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Initializes a Flutterwave hosted checkout for a wallet recharge —
   /// same flow as [createPaystackCheckout].
   Future<GatewayCheckout> createFlutterwaveCheckout(double amount) async {
@@ -124,6 +131,7 @@ class WalletService {
     String? razorpaySignature,
     String? paystackReference,
     String? flutterwaveReference,
+    String? paytrReference,
   }) async {
     final data = await _apiClient.post(
       '/wallet/recharge',
@@ -136,6 +144,7 @@ class WalletService {
         'razorpay_signature': ?razorpaySignature,
         'paystack_reference': ?paystackReference,
         'flutterwave_reference': ?flutterwaveReference,
+        'paytr_reference': ?paytrReference,
       },
     );
     return ((data as Map<String, dynamic>)['balance'] as num).toDouble();

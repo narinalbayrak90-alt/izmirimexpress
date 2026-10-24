@@ -52,6 +52,7 @@ class OrderService {
     String? razorpaySignature,
     String? paystackReference,
     String? flutterwaveReference,
+    String? paytrReference,
   }) async {
     final data = await _apiClient.post(
       '/orders',
@@ -71,6 +72,7 @@ class OrderService {
         'razorpay_signature': ?razorpaySignature,
         'paystack_reference': ?paystackReference,
         'flutterwave_reference': ?flutterwaveReference,
+        'paytr_reference': ?paytrReference,
       },
     );
     return PlacedOrder.fromJson(data as Map<String, dynamic>);

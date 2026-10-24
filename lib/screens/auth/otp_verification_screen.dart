@@ -91,6 +91,22 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
   String get _code => _controllers.map((c) => c.text).join();
 
   void _onDigitChanged(int index, String value) {
+    // A pasted or autofilled code arrives in one box: spread it over the
+    // boxes. Typing into a filled box keeps only the new digit.
+    if (value.length > 1) {
+      final digits = value.length >= OtpVerificationScreen._codeLength ? value : value.substring(value.length - 1);
+      if (digits.length == 1) {
+        _controllers[index].text = digits;
+      } else {
+        for (var i = 0; i < OtpVerificationScreen._codeLength; i++) {
+          _controllers[i].text = i < digits.length ? digits[i] : '';
+        }
+        _focusNodes[OtpVerificationScreen._codeLength - 1].requestFocus();
+        setState(() {});
+        return;
+      }
+      value = digits;
+    }
     if (value.isNotEmpty && index < OtpVerificationScreen._codeLength - 1) {
       _focusNodes[index + 1].requestFocus();
     }
@@ -195,7 +211,10 @@ class _OtpVerificationScreenState extends ConsumerState<OtpVerificationScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                identifier == null || identifier.isEmpty
+                // A reset code always goes by email, even when the customer typed their phone.
+                _isReset && (identifier == null || !identifier.contains('@'))
+                    ? 'auth.otp.subtitle_email'.tr()
+                    : identifier == null || identifier.isEmpty
                     ? 'auth.otp.subtitle_generic'.tr()
                     : 'auth.otp.subtitle_with_identifier'.tr(namedArgs: {'identifier': identifier}),
                 style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.4),
@@ -287,10 +306,12 @@ class _OtpDigitField extends StatelessWidget {
         onChanged: onChanged,
         textAlign: TextAlign.center,
         keyboardType: TextInputType.number,
-        maxLength: 1,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        textAlignVertical: TextAlignVertical.center,
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        decoration: const InputDecoration(counterText: ''),
+        // The theme's 16 px side padding leaves no room for a digit in a
+        // box this narrow, so the boxes use none.
+        decoration: const InputDecoration(contentPadding: EdgeInsets.zero),
       ),
     );
   }

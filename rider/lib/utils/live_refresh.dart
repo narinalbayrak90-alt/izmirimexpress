@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The backend runs on shared hosting with no WebSocket server, so this
 /// polls (pausing in the background), and [liveSignals] from Pusher make it
 /// immediate when the admin has set Pusher up.
-const liveRefreshInterval = Duration(seconds: 10);
+const liveRefreshInterval = Duration(seconds: 5);
 
 /// Fires when the backend signals a change through Pusher (see
 /// LiveConnection). Everything that refreshes on a timer also refreshes on

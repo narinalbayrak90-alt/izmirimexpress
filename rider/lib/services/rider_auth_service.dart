@@ -18,6 +18,8 @@ class RiderProfile {
     required this.isOnline,
     required this.vehicleType,
     this.vehicleNumber,
+    this.iban,
+    this.ibanHolder,
     required this.ratingAvg,
     this.photoUrl,
     this.drivingLicenseUrl,
@@ -33,6 +35,10 @@ class RiderProfile {
   final bool isOnline;
   final String vehicleType;
   final String? vehicleNumber;
+
+  /// Payout account for withdrawals (TR IBAN, no spaces) and its holder.
+  final String? iban;
+  final String? ibanHolder;
   final double ratingAvg;
   final String? photoUrl;
   final String? drivingLicenseUrl;
@@ -55,6 +61,8 @@ class RiderProfile {
       isOnline: json['is_online'] as bool? ?? false,
       vehicleType: json['vehicle_type'] as String? ?? '',
       vehicleNumber: json['vehicle_number'] as String?,
+      iban: json['iban'] as String?,
+      ibanHolder: json['iban_holder'] as String?,
       ratingAvg: (json['rating_avg'] as num?)?.toDouble() ?? 0,
       photoUrl: json['photo'] as String?,
       drivingLicenseUrl: json['driving_license'] as String?,
@@ -142,6 +150,8 @@ class RiderAuthService {
     required String password,
     required String vehicleType,
     String? vehicleNumber,
+    String? iban,
+    String? ibanHolder,
     String? photoPath,
     String? drivingLicensePath,
     String? idProofPath,
@@ -151,6 +161,8 @@ class RiderAuthService {
       'email': email,
       'phone': phone,
       'password': password,
+      if (iban != null && iban.isNotEmpty) 'iban': iban,
+      if (ibanHolder != null && ibanHolder.isNotEmpty) 'iban_holder': ibanHolder,
       'vehicle_type': vehicleType,
       if (vehicleNumber != null && vehicleNumber.isNotEmpty) 'vehicle_number': vehicleNumber,
       if (photoPath != null) 'photo': await MultipartFile.fromFile(photoPath),
@@ -265,6 +277,12 @@ class RiderAuthService {
     });
 
     final result = await _apiClient.post('/rider/me/update', data: data);
+    return RiderProfile.fromJson(result as Map<String, dynamic>);
+  }
+
+  /// Saves the payout IBAN (POST /rider/me/iban); returns the updated profile.
+  Future<RiderProfile> updateIban({required String iban, required String holder}) async {
+    final result = await _apiClient.post('/rider/me/iban', data: {'iban': iban, 'iban_holder': holder});
     return RiderProfile.fromJson(result as Map<String, dynamic>);
   }
 

@@ -13,6 +13,7 @@ import '../../widgets/primary_button.dart';
 import '../home/home_provider.dart';
 import 'delete_account_dialog.dart';
 import 'language_picker.dart';
+import 'iban_sheet.dart';
 
 /// Account tab: the rider's own name/email/phone, a menu into Account
 /// Setting/Earning/History, and the two account-ending actions — Delete
@@ -97,6 +98,12 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
               icon: Icons.settings_outlined,
               label: 'account.menu_account_setting'.tr(),
               onTap: () => context.push('/account/settings'),
+            ),
+            _MenuTile(
+              icon: Icons.account_balance_outlined,
+              label: 'iban.title'.tr(),
+              trailingValue: rider.iban == null ? 'iban.not_set'.tr() : '•••• ${rider.iban!.substring(rider.iban!.length - 4)}',
+              onTap: () => showIbanSheet(context, iban: rider.iban, holder: rider.ibanHolder),
             ),
             _MenuTile(
               icon: Icons.payments_outlined,

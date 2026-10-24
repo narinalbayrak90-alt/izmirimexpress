@@ -59,6 +59,7 @@
     "otp": {
       "title": "Verify Your Account",
       "subtitle_generic": "Enter the 6-digit code we sent you.",
+      "subtitle_email": "Enter the 6-digit code we sent to your email.",
       "subtitle_with_identifier": "Enter the 6-digit code we sent to {identifier}.",
       "new_password_label": "New Password",
       "new_password_hint": "Enter a new password",
@@ -142,6 +143,8 @@
     "payment_stripe_subtitle": "Pay securely with Stripe",
     "payment_razorpay_title": "Razorpay",
     "payment_razorpay_subtitle": "Pay with UPI, cards, wallets and more",
+    "payment_paytr_title": "Credit / debit card",
+    "payment_paytr_subtitle": "Pay by card through PayTR secure checkout",
     "payment_paystack_title": "Paystack",
     "payment_paystack_subtitle": "Pay with card, bank transfer, USSD and more",
     "payment_flutterwave_title": "Flutterwave",
