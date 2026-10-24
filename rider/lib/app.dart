@@ -39,6 +39,10 @@ class _PickupRiderAppState extends ConsumerState<PickupRiderApp> with WidgetsBin
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _checkForUpdate();
+      // Orders may have arrived or changed while the app was in the
+      // background; show them now rather than on the next periodic tick.
+      ref.invalidate(availableOrdersProvider);
+      ref.invalidate(activeOrdersProvider);
       // Settings that failed to load at launch (no signal) or had no
       // OneSignal App ID yet would otherwise leave push off until the
       // app is killed; fetch them again so push starts as soon as it can.
@@ -77,6 +81,15 @@ class _PickupRiderAppState extends ConsumerState<PickupRiderApp> with WidgetsBin
       // there's no dedicated order-detail screen to deep-link into yet.
       ref.read(oneSignalServiceProvider).listenForOrderAvailableClicks((orderId) {
         router.go('/home');
+      });
+
+      // A push that arrives while the app is open reloads what it is about
+      // at once, so a new order shows up with its notification rather
+      // than on the next periodic refresh.
+      ref.read(oneSignalServiceProvider).listenForPushesReceived((type, orderId) {
+        ref.invalidate(availableOrdersProvider);
+        ref.invalidate(activeOrdersProvider);
+        if (orderId != null) ref.invalidate(orderDetailProvider(orderId));
       });
 
       // Tapping a "this order was cancelled" push (see

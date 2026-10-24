@@ -104,6 +104,19 @@ class OneSignalService {
     });
   }
 
+  /// Fires as soon as a push arrives while the app is open, before it is
+  /// shown, with its `data.type` and `order_id`. The app uses it to reload
+  /// the affected lists right away instead of waiting for the next
+  /// periodic refresh. The notification is still displayed as usual.
+  void listenForPushesReceived(void Function(String type, int? orderId) onReceived) {
+    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
+      final data = event.notification.additionalData;
+      final type = data?['type'];
+      if (data == null || type is! String) return;
+      onReceived(type, _orderIdFrom(data));
+    });
+  }
+
   int? _orderIdFrom(Map<String, dynamic> data) {
     final orderId = data['order_id'];
     if (orderId is int) return orderId;
