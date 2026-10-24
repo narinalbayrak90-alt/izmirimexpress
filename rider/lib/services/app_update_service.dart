@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -26,11 +28,14 @@ class AppUpdateService {
   Future<String?> newerApkUrl() async {
     if (currentBuild == 0) return null;
     try {
-      final response = await _dio.get<dynamic>(
+      // Plain text, decoded here: GitHub serves release assets as
+      // application/octet-stream, which Dio wouldn't parse as JSON itself.
+      final response = await _dio.get<String>(
         _versionUrl,
-        options: Options(responseType: ResponseType.json, receiveTimeout: const Duration(seconds: 10)),
+        queryParameters: {'t': DateTime.now().millisecondsSinceEpoch},
+        options: Options(responseType: ResponseType.plain, receiveTimeout: const Duration(seconds: 10)),
       );
-      final data = response.data;
+      final data = jsonDecode(response.data ?? '');
       if (data is! Map) return null;
       final build = (data['build'] as num?)?.toInt() ?? 0;
       final url = data['url'] as String?;
@@ -40,8 +45,25 @@ class AppUpdateService {
     }
   }
 
-  /// Shows the "new version" dialog over [context] when there is one.
+  bool _checking = false;
+  DateTime? _lastCheck;
+
+  /// Shows the "new version" dialog over [context] when there is one. Runs
+  /// at launch and whenever the app comes back to the foreground, at most
+  /// once every few minutes and never with a dialog already open.
   Future<void> promptIfOutdated(BuildContext Function() context) async {
+    final now = DateTime.now();
+    if (_checking || (_lastCheck != null && now.difference(_lastCheck!) < const Duration(minutes: 3))) return;
+    _checking = true;
+    _lastCheck = now;
+    try {
+      await _prompt(context);
+    } finally {
+      _checking = false;
+    }
+  }
+
+  Future<void> _prompt(BuildContext Function() context) async {
     final url = await newerApkUrl();
     if (url == null) return;
     final dialogContext = context();

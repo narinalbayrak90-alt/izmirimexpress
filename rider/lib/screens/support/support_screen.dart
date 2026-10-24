@@ -52,7 +52,9 @@ class _SupportScreenState extends ConsumerState<SupportScreen> {
   }
 
   Future<void> _launch(Uri uri) async {
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    // canLaunchUrl() can wrongly answer false on newer Android, so the
+    // dialer/mail app is opened directly.
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _submit() async {

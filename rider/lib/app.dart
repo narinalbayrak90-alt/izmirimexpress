@@ -17,15 +17,33 @@ class PickupRiderApp extends ConsumerStatefulWidget {
   ConsumerState<PickupRiderApp> createState() => _PickupRiderAppState();
 }
 
-class _PickupRiderAppState extends ConsumerState<PickupRiderApp> {
+class _PickupRiderAppState extends ConsumerState<PickupRiderApp> with WidgetsBindingObserver {
+  final _updates = AppUpdateService();
+
   @override
   void initState() {
     super.initState();
-    // Once per launch: offer a newer APK if CI has published one.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final router = ref.read(routerProvider);
-      AppUpdateService().promptIfOutdated(() => router.routerDelegate.navigatorKey.currentContext ?? context);
-    });
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdate());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Back from the background counts as "opening the app" too — riders
+  // rarely fully close it.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _checkForUpdate();
+  }
+
+  /// Offers a newer APK if CI has published one.
+  void _checkForUpdate() {
+    final router = ref.read(routerProvider);
+    _updates.promptIfOutdated(() => router.routerDelegate.navigatorKey.currentContext ?? context);
   }
 
   @override

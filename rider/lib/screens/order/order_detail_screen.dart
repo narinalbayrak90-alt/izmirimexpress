@@ -63,8 +63,9 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
 
   Future<void> _call(String? phone) async {
     if (phone == null || phone.isEmpty) return;
-    final uri = Uri(scheme: 'tel', path: phone);
-    if (await canLaunchUrl(uri)) await launchUrl(uri);
+    // Straight to the dialer — canLaunchUrl() can wrongly answer false on
+    // newer Android, so it isn't asked first.
+    await launchUrl(Uri(scheme: 'tel', path: phone.replaceAll(' ', '')), mode: LaunchMode.externalApplication);
   }
 
   /// Opens turn-by-turn directions in whatever maps app is installed —
@@ -73,7 +74,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
   /// falls back to the browser if nothing's installed.
   Future<void> _navigate(RiderOrderAddress address) async {
     final uri = Uri.parse('https://www.google.com/maps/dir/?api=1&destination=${address.lat},${address.lng}');
-    if (await canLaunchUrl(uri)) await launchUrl(uri, mode: LaunchMode.externalApplication);
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _runAction(Future<RiderOrderActionResult> Function() action, {String? successMessage}) async {
