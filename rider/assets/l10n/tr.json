@@ -52,7 +52,9 @@
     "accept_taken": "Bu sipariş az önce başka bir kurye tarafından alındı.",
     "distance_away": "{distance} km uzakta",
     "load_error": "Siparişler yüklenemedi.",
-    "earn_label": "Kazancın"
+    "earn_label": "Kazancın",
+    "notifications_off": "Bildirimler kapalı. Yeni siparişleri kaçırmamak için aç.",
+    "notifications_turn_on": "Aç"
   },
   "history": {
     "title": "Geçmiş",
