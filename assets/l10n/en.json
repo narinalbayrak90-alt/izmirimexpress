@@ -153,7 +153,7 @@
     "card_unavailable": "Card payments are unavailable right now. Please try another method.",
     "payment_failed": "Payment failed. Please try again.",
     "order_payment": "Order Payment",
-    "web_checkout_prompt": "The payment page opened in a new tab. Once you've completed the payment there, tap \"I've paid\" to place your order.",
+    "web_checkout_prompt": "The payment page opened in a new tab. Once you've completed the payment there, come back and tap \"I've paid\".",
     "web_checkout_done": "I've paid",
     "recipient_title": "Recipient",
     "recipient_hint": "The rider calls this person on delivery.",

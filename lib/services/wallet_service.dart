@@ -82,6 +82,14 @@ class WalletService {
     return StripeIntent.fromJson(data as Map<String, dynamic>);
   }
 
+  /// Creates a Stripe hosted checkout page for a wallet recharge of
+  /// [amount] — the web build's card flow. Call [recharge] with
+  /// [GatewayCheckout.reference] (the checkout session id) once paid.
+  Future<GatewayCheckout> createStripeCheckout(double amount) async {
+    final data = await _apiClient.post('/wallet/recharge/stripe/checkout', data: {'amount': amount});
+    return GatewayCheckout.fromJson(data as Map<String, dynamic>);
+  }
+
   /// Creates a Razorpay Order for a wallet recharge of [amount] — same as
   /// [createStripeIntent] but for Razorpay Checkout.
   Future<RazorpayOrder> createRazorpayOrder(double amount) async {
@@ -110,6 +118,7 @@ class WalletService {
   Future<double> recharge({
     required String paymentMethod,
     String? stripePaymentIntentId,
+    String? stripeCheckoutSessionId,
     String? razorpayPaymentId,
     String? razorpayOrderId,
     String? razorpaySignature,
@@ -121,6 +130,7 @@ class WalletService {
       data: {
         'payment_method': paymentMethod,
         'stripe_payment_intent_id': ?stripePaymentIntentId,
+        'stripe_checkout_session_id': ?stripeCheckoutSessionId,
         'razorpay_payment_id': ?razorpayPaymentId,
         'razorpay_order_id': ?razorpayOrderId,
         'razorpay_signature': ?razorpaySignature,

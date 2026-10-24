@@ -153,7 +153,7 @@
     "card_unavailable": "Kartla ödeme şu anda kullanılamıyor. Lütfen başka bir yöntem deneyin.",
     "payment_failed": "Ödeme başarısız oldu. Lütfen tekrar deneyin.",
     "order_payment": "Sipariş Ödemesi",
-    "web_checkout_prompt": "Ödeme sayfası yeni bir sekmede açıldı. Ödemeyi orada tamamladıktan sonra siparişinizi vermek için \"Ödemeyi yaptım\" düğmesine dokunun.",
+    "web_checkout_prompt": "Ödeme sayfası yeni bir sekmede açıldı. Ödemeyi orada tamamladıktan sonra buraya dönüp \"Ödemeyi yaptım\" düğmesine dokunun.",
     "web_checkout_done": "Ödemeyi yaptım",
     "recipient_title": "Alıcı Bilgileri",
     "recipient_hint": "Kurye teslimatta bu kişiyi arar.",

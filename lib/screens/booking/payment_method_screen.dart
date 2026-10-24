@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -158,11 +159,11 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
       return;
     }
 
-    if (method == 'stripe') {
+    if (method == 'stripe' && !kIsWeb) {
       await _payWithStripe(draft, estimate);
     } else if (method == 'razorpay') {
       await _payWithRazorpay(draft, estimate);
-    } else if (method == 'paystack' || method == 'flutterwave') {
+    } else if (method == 'stripe' || method == 'paystack' || method == 'flutterwave') {
       await _payWithHostedCheckout(draft, estimate, method);
     }
   }
@@ -172,6 +173,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
     FareEstimate estimate,
     String method, {
     String? stripePaymentIntentId,
+    String? stripeCheckoutSessionId,
     String? razorpayPaymentId,
     String? razorpayOrderId,
     String? razorpaySignature,
@@ -188,6 +190,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
             couponCode: estimate.appliedCoupon?.code,
             scheduledAt: draft.scheduledAt,
             stripePaymentIntentId: stripePaymentIntentId,
+            stripeCheckoutSessionId: stripeCheckoutSessionId,
             razorpayPaymentId: razorpayPaymentId,
             razorpayOrderId: razorpayOrderId,
             razorpaySignature: razorpaySignature,
@@ -322,19 +325,26 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
     setState(() => _isSubmitting = true);
     try {
       final payment = ref.read(paymentServiceProvider);
-      final checkout = method == 'paystack'
-          ? await payment.createPaystackCheckout(
-              categoryId: draft.category!.id,
-              pickup: draft.pickup!,
-              dropoff: draft.dropoff!,
-              couponCode: estimate.appliedCoupon?.code,
-            )
-          : await payment.createFlutterwaveCheckout(
-              categoryId: draft.category!.id,
-              pickup: draft.pickup!,
-              dropoff: draft.dropoff!,
-              couponCode: estimate.appliedCoupon?.code,
-            );
+      final checkout = switch (method) {
+        'stripe' => await payment.createStripeCheckout(
+            categoryId: draft.category!.id,
+            pickup: draft.pickup!,
+            dropoff: draft.dropoff!,
+            couponCode: estimate.appliedCoupon?.code,
+          ),
+        'paystack' => await payment.createPaystackCheckout(
+            categoryId: draft.category!.id,
+            pickup: draft.pickup!,
+            dropoff: draft.dropoff!,
+            couponCode: estimate.appliedCoupon?.code,
+          ),
+        _ => await payment.createFlutterwaveCheckout(
+            categoryId: draft.category!.id,
+            pickup: draft.pickup!,
+            dropoff: draft.dropoff!,
+            couponCode: estimate.appliedCoupon?.code,
+          ),
+      };
 
       if (!mounted) return;
       final completed = await openGatewayCheckout(
@@ -354,6 +364,7 @@ class _PaymentMethodScreenState extends ConsumerState<PaymentMethodScreen> {
         draft,
         estimate,
         method,
+        stripeCheckoutSessionId: method == 'stripe' ? checkout.reference : null,
         paystackReference: method == 'paystack' ? checkout.reference : null,
         flutterwaveReference: method == 'flutterwave' ? checkout.reference : null,
       );

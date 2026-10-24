@@ -81,10 +81,10 @@ class AppSettings {
   static const _fallbackCountryCodes = ['90', '91', '1', '44', '61', '971', '966', '65', '49', '33', '86'];
   static const _fallbackPaymentMethods = ['cod'];
 
-  /// Gateways whose Flutter SDKs only run natively (Stripe's payment sheet,
-  /// Razorpay Checkout) — hidden in the web build, where Paystack and
-  /// Flutterwave still work through their hosted checkout pages.
-  static const _nativeOnlyPaymentMethods = ['stripe', 'razorpay'];
+  /// Gateways whose Flutter SDKs only run natively (Razorpay Checkout) —
+  /// hidden in the web build. Stripe, Paystack and Flutterwave still work
+  /// there through their hosted checkout pages.
+  static const _nativeOnlyPaymentMethods = ['razorpay'];
   static const _fallbackMaxDeliveryDistanceKm = 25.0;
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -162,7 +163,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
     if (amount == null || amount <= 0 || method == null) return;
 
     setState(() => _isRecharging = true);
-    if (method == 'stripe') {
+    if (method == 'stripe' && !kIsWeb) {
       await _rechargeWithStripe(amount);
     } else if (method == 'razorpay') {
       await _rechargeWithRazorpay(amount);
@@ -261,9 +262,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
   Future<void> _rechargeWithHostedCheckout(double amount, String method) async {
     try {
       final wallet = ref.read(walletServiceProvider);
-      final checkout = method == 'paystack'
-          ? await wallet.createPaystackCheckout(amount)
-          : await wallet.createFlutterwaveCheckout(amount);
+      final checkout = switch (method) {
+        'stripe' => await wallet.createStripeCheckout(amount),
+        'paystack' => await wallet.createPaystackCheckout(amount),
+        _ => await wallet.createFlutterwaveCheckout(amount),
+      };
 
       if (!mounted) return;
       final completed = await openGatewayCheckout(
@@ -279,6 +282,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
 
       await _confirmRecharge(
         paymentMethod: method,
+        stripeCheckoutSessionId: method == 'stripe' ? checkout.reference : null,
         paystackReference: method == 'paystack' ? checkout.reference : null,
         flutterwaveReference: method == 'flutterwave' ? checkout.reference : null,
       );
@@ -292,6 +296,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
   Future<void> _confirmRecharge({
     required String paymentMethod,
     String? stripePaymentIntentId,
+    String? stripeCheckoutSessionId,
     String? razorpayPaymentId,
     String? razorpayOrderId,
     String? razorpaySignature,
@@ -302,6 +307,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
       final balance = await ref.read(walletServiceProvider).recharge(
             paymentMethod: paymentMethod,
             stripePaymentIntentId: stripePaymentIntentId,
+            stripeCheckoutSessionId: stripeCheckoutSessionId,
             razorpayPaymentId: razorpayPaymentId,
             razorpayOrderId: razorpayOrderId,
             razorpaySignature: razorpaySignature,

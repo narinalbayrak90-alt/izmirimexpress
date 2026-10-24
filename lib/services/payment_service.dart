@@ -54,8 +54,9 @@ class GatewayCheckout {
   factory GatewayCheckout.fromJson(Map<String, dynamic> json) {
     return GatewayCheckout(
       authorizationUrl: json['authorization_url'] as String,
-      // Paystack returns `reference`, Flutterwave returns `tx_ref`.
-      reference: (json['reference'] ?? json['tx_ref']) as String,
+      // Paystack returns `reference`, Flutterwave `tx_ref`, Stripe
+      // Checkout `checkout_session_id`.
+      reference: (json['reference'] ?? json['tx_ref'] ?? json['checkout_session_id']) as String,
       payableAmount: (json['payable_amount'] as num).toDouble(),
     );
   }
@@ -118,6 +119,20 @@ class PaymentService {
   }) async {
     final data = await _apiClient.post('/payment/stripe/intent', data: _priceRequest(categoryId, pickup, dropoff, couponCode));
     return StripeIntent.fromJson(data as Map<String, dynamic>);
+  }
+
+  /// Creates a Stripe hosted checkout page for whatever the wallet doesn't
+  /// already cover — the web build's card flow, where the payment sheet
+  /// doesn't run. Place the order with [GatewayCheckout.reference] (the
+  /// checkout session id) once the customer is done paying.
+  Future<GatewayCheckout> createStripeCheckout({
+    required int categoryId,
+    required BookingAddress pickup,
+    required BookingAddress dropoff,
+    String? couponCode,
+  }) async {
+    final data = await _apiClient.post('/payment/stripe/checkout', data: _priceRequest(categoryId, pickup, dropoff, couponCode));
+    return GatewayCheckout.fromJson(data as Map<String, dynamic>);
   }
 
   Future<RazorpayOrder> createRazorpayOrder({
