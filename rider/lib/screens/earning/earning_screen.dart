@@ -44,7 +44,12 @@ class EarningScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _SummaryCards(summary: data),
-                if (data.todayCodCollected > 0) ...[
+                if (data.cashInHand != null) ...[
+                  if (data.cashInHand! > 0 || data.cashDeposits.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    _CashInHandCard(summary: data),
+                  ],
+                ] else if (data.todayCodCollected > 0) ...[
                   const SizedBox(height: AppSpacing.sm),
                   _CodDepositBanner(amount: data.todayCodCollected),
                 ],
@@ -172,6 +177,98 @@ class _CodDepositBanner extends ConsumerWidget {
               style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.4),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cash still owed to the office ([RiderEarningsSummary.cashInHand]) and
+/// the latest handovers the office recorded. It drops to zero once the
+/// office takes the cash; the rider's earning is untouched and is paid out
+/// by withdrawal.
+class _CashInHandCard extends ConsumerWidget {
+  const _CashInHandCard({required this.summary});
+
+  final RiderEarningsSummary summary;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currency = ref.watch(riderSettingsProvider).valueOrNull ?? const RiderSettings();
+    final cash = summary.cashInHand ?? 0;
+    final owes = cash > 0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: owes ? AppColors.heroBackground : AppColors.successBackground,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: (owes ? AppColors.primary : AppColors.success).withValues(alpha: 0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                owes ? Icons.account_balance_wallet_outlined : Icons.check_circle_outline,
+                color: owes ? AppColors.primaryDark : AppColors.success,
+                size: 22,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      owes
+                          ? 'earning.cash_in_hand'.tr(namedArgs: {'amount': currency.format(cash)})
+                          : 'earning.cash_settled'.tr(),
+                      style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.textPrimary, height: 1.4),
+                    ),
+                    if (summary.todayCodCollected > 0) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'earning.cash_collected_today'.tr(namedArgs: {'amount': currency.format(summary.todayCodCollected)}),
+                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (summary.cashDeposits.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            const Divider(height: 1),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'earning.cash_deposits_title'.tr(),
+              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 4),
+            ...summary.cashDeposits.map(
+              (deposit) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        deposit.createdAt == null ? '—' : DateFormat('d MMM y, HH:mm').format(deposit.createdAt!),
+                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                    ),
+                    Text(
+                      currency.format(deposit.amount),
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ],
       ),
     );

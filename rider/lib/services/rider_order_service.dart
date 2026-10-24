@@ -261,6 +261,8 @@ class RiderEarningsSummary {
     required this.todayCodCollected,
     required this.totalEarning,
     required this.totalDeliveries,
+    this.cashInHand,
+    this.cashDeposits = const [],
   });
 
   final double todayEarning;
@@ -273,6 +275,14 @@ class RiderEarningsSummary {
   final double totalEarning;
   final int totalDeliveries;
 
+  /// COD cash still owed to the office across all days — delivered COD
+  /// totals minus the handovers the office recorded (Rider::cashInHand on
+  /// the backend). Null on a backend that predates cash handovers.
+  final double? cashInHand;
+
+  /// Latest handovers the office recorded, newest first.
+  final List<RiderCashDeposit> cashDeposits;
+
   factory RiderEarningsSummary.fromJson(Map<String, dynamic> json) {
     return RiderEarningsSummary(
       todayEarning: (json['today_earning'] as num).toDouble(),
@@ -280,6 +290,30 @@ class RiderEarningsSummary {
       todayCodCollected: (json['today_cod_collected'] as num).toDouble(),
       totalEarning: (json['total_earning'] as num).toDouble(),
       totalDeliveries: json['total_deliveries'] as int,
+      cashInHand: (json['cash_in_hand'] as num?)?.toDouble(),
+      cashDeposits: ((json['cash_deposits'] as List?) ?? const [])
+          .map((row) => RiderCashDeposit.fromJson(row as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// One cash handover at the office, recorded by an admin from the Rider
+/// Settlement report.
+class RiderCashDeposit {
+  const RiderCashDeposit({required this.id, required this.amount, this.note, this.createdAt});
+
+  final int id;
+  final double amount;
+  final String? note;
+  final DateTime? createdAt;
+
+  factory RiderCashDeposit.fromJson(Map<String, dynamic> json) {
+    return RiderCashDeposit(
+      id: json['id'] as int,
+      amount: (json['amount'] as num).toDouble(),
+      note: json['note'] as String?,
+      createdAt: DateTime.tryParse(json['created_at'] as String? ?? '')?.toLocal(),
     );
   }
 }
