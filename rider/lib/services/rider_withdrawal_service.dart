@@ -34,16 +34,21 @@ class RiderWithdrawal {
 /// `GET /rider/withdrawals`'s full response — what the Earning tab needs
 /// to show the Withdraw button's limit and a status history in one call.
 class RiderWithdrawalSummary {
-  const RiderWithdrawalSummary({required this.availableBalance, required this.requests});
+  const RiderWithdrawalSummary({required this.availableBalance, required this.requests, this.cashInHand = 0});
 
   final double availableBalance;
   final List<RiderWithdrawal> requests;
+
+  /// COD cash not yet handed over at the office; withdrawals stay closed
+  /// while it's above zero (enforced by the backend too).
+  final double cashInHand;
 
   factory RiderWithdrawalSummary.fromJson(Map<String, dynamic> json) {
     final rows = (json['requests'] as Map<String, dynamic>)['data'] as List;
 
     return RiderWithdrawalSummary(
       availableBalance: (json['available_balance'] as num).toDouble(),
+      cashInHand: (json['cash_in_hand'] as num?)?.toDouble() ?? 0,
       requests: rows.map((row) => RiderWithdrawal.fromJson(row as Map<String, dynamic>)).toList(),
     );
   }

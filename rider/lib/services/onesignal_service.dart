@@ -9,18 +9,29 @@ import '../config/env.dart';
 class OneSignalService {
   bool _isInitialized = false;
 
+  /// Rider id tagged before the SDK was initialized (the App ID arrives
+  /// with `/rider/settings`), applied as soon as [initialize] runs.
+  int? _pendingRiderId;
+
   void initialize(String appId) {
     if (_isInitialized || appId.isEmpty) return;
 
     OneSignal.Debug.setLogLevel(Env.isProduction ? OSLogLevel.none : OSLogLevel.verbose);
     OneSignal.initialize(appId);
     _isInitialized = true;
+
+    final riderId = _pendingRiderId;
+    if (riderId != null) {
+      OneSignal.User.addTagWithKey('rider_id', riderId.toString());
+      OneSignal.Notifications.requestPermission(true);
+    }
   }
 
   /// Requests OS-level notification permission — a no-op if already
   /// granted/denied. Needed for push to actually arrive on iOS and on
   /// Android 13+ (POST_NOTIFICATIONS is a runtime permission there).
-  Future<bool> requestPermission() {
+  Future<bool> requestPermission() async {
+    if (!_isInitialized) return false;
     return OneSignal.Notifications.requestPermission(true);
   }
 
@@ -30,7 +41,12 @@ class OneSignalService {
   /// `OneSignalService::notifyOrderAvailable` (backend) sends when a new
   /// order needs a rider. See RiderAuthController::login/register and
   /// this app's own login/reset-password screens for where this is called.
+  ///
+  /// Also called on every Home load, so a rider who was already signed in
+  /// (or signed in before the SDK was ready) still gets tagged.
   void tagRiderId(int riderId) {
+    _pendingRiderId = riderId;
+    if (!_isInitialized) return;
     OneSignal.User.addTagWithKey('rider_id', riderId.toString());
   }
 
@@ -38,6 +54,8 @@ class OneSignalService {
   /// doesn't keep receiving the previous rider's order offers after
   /// they've signed out.
   void clearRiderTag() {
+    _pendingRiderId = null;
+    if (!_isInitialized) return;
     OneSignal.User.removeTag('rider_id');
   }
 
