@@ -15,6 +15,7 @@ import '../../services/payment_service.dart';
 import '../../services/wallet_service.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
+import '../../utils/live_refresh.dart';
 import '../../widgets/app_loader.dart';
 import '../../widgets/gateway_checkout_page.dart';
 import '../../widgets/primary_button.dart';
@@ -70,6 +71,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
     super.initState();
     _loadBalance();
     _loadFirstHistoryPage();
+    _balanceTicker.start();
     _historyScrollController.addListener(_onHistoryScroll);
   }
 
@@ -77,10 +79,14 @@ class _WalletScreenState extends ConsumerState<WalletScreen> with SingleTickerPr
   void dispose() {
     _tabController.dispose();
     _amountController.dispose();
+    _balanceTicker.stop();
     _historyScrollController.removeListener(_onHistoryScroll);
     _historyScrollController.dispose();
     super.dispose();
   }
+
+  /// Live balance, e.g. after a refund or an admin top-up.
+  late final _balanceTicker = LiveTicker(_loadBalance, every: const Duration(seconds: 20));
 
   Future<void> _loadBalance() async {
     try {

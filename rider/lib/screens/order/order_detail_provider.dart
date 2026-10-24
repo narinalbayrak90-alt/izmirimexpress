@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../providers/app_providers.dart';
 import '../../services/rider_order_service.dart';
+import '../../utils/live_refresh.dart';
 
 /// Full detail for one order, from `GET /rider/orders/{order}` — keyed by
 /// order id so each [OrderDetailScreen] instance gets its own cached copy.
@@ -10,5 +11,6 @@ import '../../services/rider_order_service.dart';
 /// after every action (accept/release/pickup/in-transit/deliver) rather
 /// than trying to patch the cached value by hand.
 final orderDetailProvider = FutureProvider.autoDispose.family<RiderOrderDetail, int>((ref, orderId) {
+  ref.refreshEvery();
   return ref.watch(riderOrderServiceProvider).show(orderId);
 });
